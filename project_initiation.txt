@@ -1,0 +1,29 @@
+1. Tạo 2 thư mục backend, frontend
+
+2. Frontend
+    2.1. Khởi tạo
+    -   npm create vite@latest .
+    -   npm install
+    -   npm run dev
+
+    2.2. Cài Tailwind CSS
+    -   npm install tailwindcss @tailwindcss/vite
+
+    2.3. Cài daisyUI (giống chakraUI)
+    -   npm i -D daisyui@latest
+
+    2.4. Cài thư viện React-Icons
+    -   npm install react-icons --save
+
+    2.5. Quản lý điều hướng (routing) trong ứng dụng React
+    -   npm i react-router-dom
+
+    2.6. Cài React OAuth2 | Google
+    -   npm install @react-oauth/google@latest
+    -   tạo .env:
+        -   nếu dùng npx create-react-app name thì env phải là REACT_APP_...
+        -   nếu dùng npm create vite@latest name thì env pahir là VITE_...
+    -   cấu hình main.jsx (nhớ log để check xem env có hợp lệ ko)
+
+    2.7. Cài thư viện call API
+    -   npm i axios

@@ -10,7 +10,7 @@ const Navbar_v2 = () => {
 
   const links = [
     {
-      href: "/",
+      href: "/feed",
       label: "Home",
       icon: <FaHome className="text-lg flex-shrink-0" />,
     },
@@ -20,8 +20,8 @@ const Navbar_v2 = () => {
       icon: <FaUserFriends className="text-lg flex-shrink-0" />,
     },
     {
-      href: "/jobs",
-      label: "Jobs",
+      href: "/resume",
+      label: "Resume",
       icon: <FaBriefcase className="text-lg flex-shrink-0" />,
     },
     {

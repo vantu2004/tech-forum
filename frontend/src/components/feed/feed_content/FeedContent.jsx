@@ -1,10 +1,10 @@
 import PostBox from "./PostBox";
 import PostItem from "./PostItem";
 
-const FeedContent = () => {
+const FeedContent = ({ onOpenPostModal }) => {
   return (
     <div className="space-y-4">
-      <PostBox />
+      <PostBox onOpenPostModal={onOpenPostModal} />
       <PostItem />
     </div>
   );

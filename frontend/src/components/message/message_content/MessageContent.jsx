@@ -57,7 +57,7 @@ const MessageContent = () => {
   const [activeChat, setActiveChat] = useState(null);
 
   return (
-    <div className="bg-white rounded-xl shadow-md flex h-[650px] md:h-[595px] overflow-hidden border border-gray-100">
+    <div className="bg-white rounded-lg shadow-md flex h-[650px] md:h-[595px] overflow-hidden border border-gray-100">
       <MessageContentSideBar
         activeChat={activeChat}
         setActiveChat={setActiveChat}

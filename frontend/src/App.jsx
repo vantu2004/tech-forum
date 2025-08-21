@@ -9,6 +9,7 @@ import FeedPage from "./pages/feed_page/FeedPage.jsx";
 import MyNetworkPage from "./pages/my_network_page/MyNetWorkPage.jsx";
 import ResumePage from "./pages/resume_page/ResumePage.jsx";
 import MessagePage from "./pages/message_page/MessagePage.jsx";
+import ProfilePage from "./pages/profile_page/ProfilePage.jsx";
 
 function App() {
   const isLogined = true;
@@ -27,6 +28,7 @@ function App() {
           <Route path="/network" element={<MyNetworkPage />} />
           <Route path="/resume" element={<ResumePage />} />
           <Route path="/message" element={<MessagePage />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
         </Routes>
       </main>
 

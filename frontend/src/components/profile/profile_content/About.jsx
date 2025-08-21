@@ -1,0 +1,24 @@
+import { FiEdit } from "react-icons/fi";
+
+const About = ({ onOpenAboutModal }) => {
+  return (
+    <div className="mt-6 space-y-4">
+      <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold text-gray-800">About</h2>
+          <button
+            onClick={onOpenAboutModal}
+            className="p-2 rounded-full hover:bg-gray-100 transition"
+          >
+            <FiEdit className="text-gray-600" size={18} />
+          </button>
+        </div>
+        <p className="text-gray-700">
+          Đây là nội dung bài viết mẫu. Bạn có thể thay thế bằng dữ liệu từ API.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default About;

@@ -8,6 +8,8 @@ import logo from "../../assets/navbar/logo.png";
 const Navbar_v2 = () => {
   const [open, setOpen] = useState(false);
 
+  const userId = "1";
+
   const links = [
     {
       href: "/feed",
@@ -35,7 +37,7 @@ const Navbar_v2 = () => {
       icon: <FaBell className="text-lg flex-shrink-0" />,
     },
 
-    { href: "/me", label: "", avatar: true },
+    { href: `/profile/${userId}`, label: "", avatar: true },
   ];
 
   return (

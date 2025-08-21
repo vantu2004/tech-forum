@@ -1,4 +1,3 @@
-// src/components/common/Modal.jsx
 import { FiX } from "react-icons/fi";
 
 const Modal = ({ onClose, children, size = "max-w-xl" }) => {

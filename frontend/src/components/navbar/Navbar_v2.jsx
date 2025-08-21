@@ -25,7 +25,7 @@ const Navbar_v2 = () => {
       icon: <FaBriefcase className="text-lg flex-shrink-0" />,
     },
     {
-      href: "/messaging",
+      href: "/message",
       label: "Messaging",
       icon: <FiMessageSquare className="text-lg flex-shrink-0" />,
     },
@@ -34,11 +34,7 @@ const Navbar_v2 = () => {
       label: "Notifications",
       icon: <FaBell className="text-lg flex-shrink-0" />,
     },
-    {
-      href: "/business",
-      label: "For Business",
-      icon: <BsBuildingFill className="text-lg flex-shrink-0" />,
-    },
+
     { href: "/me", label: "", avatar: true },
   ];
 

@@ -1,4 +1,4 @@
-import logo from "../../assets/navbar/logo.png";
+import Suggestion from "../common/SuggestionCard";
 
 const RightSidebar = () => {
   return (
@@ -12,16 +12,7 @@ const RightSidebar = () => {
         </ul>
       </div>
 
-      {/* Ad / Suggestion */}
-      <div className="bg-white border rounded-lg shadow-sm p-4 text-center">
-        <img src={logo} alt="Ad" className="mx-auto mb-2 rounded" />
-        <p className="text-sm text-gray-700">
-          Get the latest jobs and industry news
-        </p>
-        <button className="mt-2 bg-blue-600 text-white text-sm px-4 py-2 rounded-full hover:bg-blue-700">
-          Explore
-        </button>
-      </div>
+      <Suggestion />
     </div>
   );
 };

@@ -46,7 +46,7 @@ const PostItem = () => {
   ]);
 
   return (
-    <div className="bg-white border rounded-lg shadow-sm p-4">
+    <div className="bg-white rounded-lg shadow-sm p-4">
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
         <img src={logo} alt="User" className="w-10 h-10 rounded-full" />

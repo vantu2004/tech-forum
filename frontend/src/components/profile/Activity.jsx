@@ -1,7 +1,8 @@
-import logo from "../../../assets/navbar/logo.png";
+import logo from "../../assets/navbar/logo.png";
 import { FiThumbsUp, FiMessageCircle } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
-const Activity = () => {
+const Activity = ({ id, onOpenPostedModal }) => {
   // giả lập data
   const posts = [
     {
@@ -43,8 +44,9 @@ const Activity = () => {
       <div className="flex gap-5 overflow-x-auto pb-3">
         {posts.map((post) => (
           <div
+            onClick={onOpenPostedModal}
             key={post.id}
-            className="bg-white rounded-xl shadow-sm hover:shadow-md min-w-[calc(50%-0.5rem)] max-w-[calc(50%-0.5rem)] flex-shrink-0 transition"
+            className="bg-white rounded-xl shadow-sm hover:shadow-md min-w-[calc(50%-0.5rem)] max-w-[calc(50%-0.5rem)] flex-shrink-0 transition hover:bg-gray-100 cursor-pointer"
           >
             {/* Header */}
             <div className="flex items-center gap-3 p-4 border-b border-gray-200">
@@ -87,9 +89,12 @@ const Activity = () => {
 
       {/* Show all link */}
       <div className="text-center mt-4">
-        <button className="text-blue-500 font-medium hover:text-blue-700 transition">
+        <Link
+          to={`/profile/${id}/activities`}
+          className="text-blue-500 font-medium hover:text-blue-700 transition"
+        >
           Show all posts →
-        </button>
+        </Link>
       </div>
     </div>
   );

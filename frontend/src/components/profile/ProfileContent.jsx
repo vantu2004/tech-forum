@@ -11,6 +11,8 @@ const ProfileContent = ({
   onOpenAboutModal,
   onOpenSkillModal,
   onOpenExperienceModal,
+  onOpenPostedModal,
+  id,
 }) => {
   return (
     <div>
@@ -19,7 +21,7 @@ const ProfileContent = ({
       <About onOpenAboutModal={onOpenAboutModal} />
       <Skill onOpenSkillModal={onOpenSkillModal} />
       <Experience onOpenExperienceModal={onOpenExperienceModal} />
-      <Activity />
+      <Activity id={id} onOpenPostedModal={onOpenPostedModal} />
     </div>
   );
 };

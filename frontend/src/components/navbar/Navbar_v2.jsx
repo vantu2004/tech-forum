@@ -32,8 +32,8 @@ const Navbar_v2 = () => {
       icon: <FiMessageSquare className="text-lg flex-shrink-0" />,
     },
     {
-      href: "/notifications",
-      label: "Notifications",
+      href: "/notification",
+      label: "Notification",
       icon: <FaBell className="text-lg flex-shrink-0" />,
     },
 

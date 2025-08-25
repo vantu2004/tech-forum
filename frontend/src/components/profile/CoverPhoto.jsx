@@ -1,5 +1,5 @@
 import { useState } from "react";
-import logo from "../../../assets/navbar/logo.png";
+import logo from "../../assets/navbar/logo.png";
 import { FiCamera, FiEdit, FiCheck } from "react-icons/fi";
 
 const CoverPhoto = ({ onOpenInfomationModal }) => {

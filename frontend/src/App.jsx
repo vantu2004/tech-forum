@@ -10,6 +10,8 @@ import MyNetworkPage from "./pages/my_network_page/MyNetWorkPage.jsx";
 import ResumePage from "./pages/resume_page/ResumePage.jsx";
 import MessagePage from "./pages/message_page/MessagePage.jsx";
 import ProfilePage from "./pages/profile_page/ProfilePage.jsx";
+import AllActivities from "./pages/all_activities_page/AllActivitiesPage.jsx";
+import NotificationPage from "./pages/notification_page/NotificationPage.jsx";
 
 function App() {
   const isLogined = true;
@@ -28,7 +30,9 @@ function App() {
           <Route path="/network" element={<MyNetworkPage />} />
           <Route path="/resume" element={<ResumePage />} />
           <Route path="/message" element={<MessagePage />} />
+          <Route path="/notification" element={<NotificationPage />} />
           <Route path="/profile/:id" element={<ProfilePage />} />
+          <Route path="/profile/:id/activities" element={<AllActivities />} />
         </Routes>
       </main>
 

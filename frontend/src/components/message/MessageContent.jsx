@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import MessageContentSideBar from "./MessageContentSideBar.jsx";
-import MessageContentChatWindow from "./MessageContentChatWindow.jsx";
+import { useState } from "react";
+import SideBar from "./SideBar.jsx";
+import ChatWindow from "./ChatWindow.jsx";
 
 const chats = [
   {
@@ -58,13 +58,13 @@ const MessageContent = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md flex h-[650px] md:h-[595px] overflow-hidden border border-gray-100">
-      <MessageContentSideBar
+      <SideBar
         activeChat={activeChat}
         setActiveChat={setActiveChat}
         chats={chats}
       />
 
-      <MessageContentChatWindow
+      <ChatWindow
         activeChat={activeChat}
         setActiveChat={setActiveChat}
         chats={chats}

@@ -1,6 +1,5 @@
-import React from "react";
-import RightSidebar from "../../components/message/RightSideBar.jsx";
-import MessageContent from "../../components/message/message_content/MessageContent.jsx";
+import MessageContent from "../../components/message/MessageContent.jsx";
+import SuggestionCard from "../../components/common/SuggestionCard.jsx";
 
 const MessagePage = () => {
   return (
@@ -9,7 +8,7 @@ const MessagePage = () => {
         <MessageContent />
       </div>
       <div className="hidden lg:block w-1/4">
-        <RightSidebar />
+        <SuggestionCard />
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
-import React from "react";
 import logo from "../../assets/navbar/logo.png";
 
-const RightSideBar = () => {
+const Suggestion = () => {
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 text-center sticky top-20">
       <img src={logo} alt="Ad" className="mx-auto mb-2 rounded" />
@@ -15,4 +14,4 @@ const RightSideBar = () => {
   );
 };
 
-export default RightSideBar;
+export default Suggestion;

@@ -35,7 +35,12 @@
     3.2. Thêm "type":"module" vào package.json
 
     3.3. Cài dependencies cần thiết
-    -   npm i express nodemon mongoose dotenv jsonwebtoken bcryptjs cookie-parser cloudinary socket.io
+    -   npm i express nodemon mongoose dotenv jsonwebtoken bcryptjs cookie-parser cloudinary socket.io crypto
 
     3.4. Cài Google Auth Lib
     -    npm i google-auth-library
+
+    3.5. Cài Gmail SMTP
+    -   npm i nodemailer
+
+

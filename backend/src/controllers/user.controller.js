@@ -3,6 +3,13 @@ import UserProfile from "../models/userProfile.model.js";
 import bcryptjs from "bcryptjs";
 import { OAuth2Client } from "google-auth-library";
 import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js";
+import {
+  sendVerificationEmail,
+  sendWelcomeEmail,
+  sendPasswordResetEmail,
+  sendResetSuccessEmail,
+} from "../smtp/smtp.send.js";
+import crypto from "crypto";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -67,9 +74,7 @@ export const register = async (req, res) => {
 
     generateTokenAndSetCookie(res, savedUserAuth._id);
 
-    // await sendVerificationEmail(savedUser.email, verificationToken);
-
-    // console.log("Cookie header:", res.getHeader("Set-Cookie"));
+    await sendVerificationEmail(savedUserAuth.email, verificationToken);
 
     res.status(201).json({
       success: true,
@@ -111,7 +116,7 @@ export const login = async (req, res) => {
         .json({ success: false, error: "Email is not verified" });
     }
 
-    const isMatch = bcryptjs.compare(password, userAuth.password);
+    const isMatch = await bcryptjs.compare(password, userAuth.password);
     if (!isMatch) {
       return res
         .status(400)
@@ -209,4 +214,112 @@ export const logout = (req, res) => {
   });
 
   res.status(200).json({ success: true, message: "Logout successful" });
+};
+
+export const verifyEmail = async (req, res) => {
+  const { email, OTP } = req.body;
+
+  try {
+    const userAuth = await UserAuth.findOne({
+      email,
+      verificationToken: OTP,
+      verificationTokenExpiresAt: { $gt: Date.now() },
+    });
+    if (!userAuth) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid or expired token" });
+    }
+
+    userAuth.isVerified = true;
+    userAuth.verificationToken = undefined;
+    userAuth.verificationTokenExpiresAt = undefined;
+    await userAuth.save();
+
+    const userProfile = await UserProfile.findOne({ userId: userAuth._id });
+
+    await sendWelcomeEmail(userAuth.email, userProfile.name);
+
+    // 2 field kia đã bị xóa nên chỉ cần ko trả về password là được
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+      user: {
+        ...userAuth._doc,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const userAuth = await UserAuth.findOne({ email });
+    if (!userAuth) {
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    userAuth.resetPasswordToken = resetToken;
+    userAuth.resetPasswordExpiresAt = Date.now() + 3600000; // 1 hour
+    await userAuth.save();
+
+    await sendPasswordResetEmail(
+      userAuth.email,
+      `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset email sent",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    const userAuth = await UserAuth.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiresAt: { $gt: Date.now() },
+    });
+    if (!userAuth) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid or expired password reset token",
+      });
+    }
+
+    userAuth.password = await bcryptjs.hash(password, 10);
+    userAuth.resetPasswordToken = undefined;
+    userAuth.resetPasswordExpiresAt = undefined;
+    await userAuth.save();
+
+    await sendResetSuccessEmail(userAuth.email);
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successful",
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
 };

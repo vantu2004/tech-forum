@@ -30,9 +30,12 @@
 
 3. Backend
     3.1. Tạo package.json
-        - npm init -y
+    -   npm init -y
 
     3.2. Thêm "type":"module" vào package.json
 
     3.3. Cài dependencies cần thiết
-        - npm i express nodemon mongoose dotenv jsonwebtoken bcryptjs cookie-parser cloudinary socket.io
+    -   npm i express nodemon mongoose dotenv jsonwebtoken bcryptjs cookie-parser cloudinary socket.io
+
+    3.4. Cài Google Auth Lib
+    -    npm i google-auth-library

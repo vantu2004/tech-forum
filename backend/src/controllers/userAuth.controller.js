@@ -192,7 +192,7 @@ export const loginGoogle = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Login successful",
-      user: {
+      userAuth: {
         ...userAuth._doc,
         password: undefined,
       },
@@ -244,7 +244,7 @@ export const verifyEmail = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Email verified successfully",
-      user: {
+      userAuth: {
         ...userAuth._doc,
         password: undefined,
       },

@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import userAuthRoutes from "./routes/userAuth.route.js";
 import userProfileRoutes from "./routes/userProfile.route.js";
 import postRoutes from "./routes/post.route.js";
+import notificationRoutes from "./routes/notification.route.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(cookieParser());
 app.use("/api/users", userAuthRoutes);
 app.use("/api/users", userProfileRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

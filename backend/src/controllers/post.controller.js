@@ -83,3 +83,68 @@ export const likeDislikePost = async (req, res) => {
     });
   }
 };
+
+export const getAllPosts = async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ createdAt: -1 });
+
+    if (!posts || posts.length === 0) {
+      return res.status(204).json({
+        success: false,
+        error: "No posts found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      posts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+export const getPostById = async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        error: "Post not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      post,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+export const getPostsByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { limit = 0, skip = 0 } = req.query;
+
+    const posts = await Post.find({ userId })
+      .sort({ createdAt: -1 })
+      .skip(Number(skip))
+      .limit(Number(limit));
+
+    res.json({ success: true, posts });
+  } catch (error) {
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};

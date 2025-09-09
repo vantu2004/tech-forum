@@ -18,7 +18,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["MESSAGE", "FRIEND_REQUEST", "MENTION"],
+      enum: ["MESSAGE", "FRIEND_REQUEST", "COMMENT", "REPLY"],
       required: true,
     },
     isRead: {

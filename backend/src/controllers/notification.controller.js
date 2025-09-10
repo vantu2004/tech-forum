@@ -7,10 +7,6 @@ export const getAllNotifications = async (req, res) => {
       receiverId: userId,
     }).sort({ createdAt: -1 });
 
-    if (!notifications || notifications.length === 0) {
-      return res.status(204).send();
-    }
-
     res.status(200).json({ success: true, notifications });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server error" });
@@ -52,10 +48,6 @@ export const getUnreadNotifications = async (req, res) => {
       receiverId: userId,
       isRead: false,
     }).sort({ createdAt: -1 });
-
-    if (!notifications || notifications.length === 0) {
-      return res.status(204).send();
-    }
 
     res.status(200).json({ success: true, notifications });
   } catch (error) {

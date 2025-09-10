@@ -88,13 +88,6 @@ export const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find().sort({ createdAt: -1 });
 
-    if (!posts || posts.length === 0) {
-      return res.status(204).json({
-        success: false,
-        error: "No posts found",
-      });
-    }
-
     res.status(200).json({
       success: true,
       posts,

@@ -67,7 +67,7 @@ export const register = async (req, res) => {
       verificationTokenExpiresAt,
     });
 
-    const savedUserProfile = await UserProfile.create({
+    await UserProfile.create({
       userId: savedUserAuth._id,
       name: name || null,
     });

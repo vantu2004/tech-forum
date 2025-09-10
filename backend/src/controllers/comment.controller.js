@@ -64,7 +64,7 @@ export const createComment = async (req, res) => {
       if (postOwnerId !== senderIdStr) {
         receivers.set(postOwnerId, {
           receiverId: post.userId,
-          content: `${senderName} đã bình luận bài viết của bạn"`,
+          content: `${senderName} commented on your post`,
           type: "COMMENT",
         });
       }
@@ -77,7 +77,7 @@ export const createComment = async (req, res) => {
       if (postOwnerId !== senderIdStr) {
         receivers.set(postOwnerId, {
           receiverId: post.userId,
-          content: `${senderName} đã trả lời trong bài viết của bạn"`,
+          content: `${senderName} replied in your post`,
           type: "REPLY",
         });
       }
@@ -86,7 +86,7 @@ export const createComment = async (req, res) => {
       if (parentOwnerId !== senderIdStr) {
         receivers.set(parentOwnerId, {
           receiverId: parentComment.userId,
-          content: `${senderName} đã trả lời bình luận của bạn"`,
+          content: `${senderName} replied to your comment`,
           type: "REPLY",
         });
       }
@@ -118,12 +118,6 @@ export const getAllComments = async (req, res) => {
   try {
     const { postId } = req.params;
     const comments = await Comment.find({ postId }).sort({ createdAt: -1 });
-
-    if (comments.length === 0) {
-      return res
-        .status(204)
-        .json({ success: false, error: "No comments found" });
-    }
 
     res.status(200).json({ success: true, comments });
   } catch (error) {

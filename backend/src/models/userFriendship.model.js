@@ -14,7 +14,7 @@ const userFriendshipSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["PENDING", "ACCEPTED", "DECLINED"],
+      enum: ["PENDING", "ACCEPTED"],
       default: "PENDING",
     },
   },

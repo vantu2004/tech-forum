@@ -137,10 +137,11 @@ export const getUserProfileByQuery = async (req, res) => {
       results,
     });
   } catch (err) {
-    console.error("[getUserProfileByQuery] error:", err);
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal server error" });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };
 

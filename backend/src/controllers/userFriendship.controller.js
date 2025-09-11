@@ -15,8 +15,11 @@ export const getPendingSentFriendships = async (req, res) => {
 
     return res.status(200).json({ success: true, friendships });
   } catch (error) {
-    console.error("[getPendingSent] error:", error);
-    return res.status(500).json({ success: false, error: error.message });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };
 
@@ -31,8 +34,11 @@ export const getPendingReceivedFriendships = async (req, res) => {
 
     return res.status(200).json({ success: true, friendships });
   } catch (error) {
-    console.error("[getPendingReceived] error:", error);
-    return res.status(500).json({ success: false, error: error.message });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };
 
@@ -48,8 +54,11 @@ export const getAcceptedFriendships = async (req, res) => {
 
     res.status(200).json({ success: true, friendships });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };
 
@@ -154,10 +163,11 @@ export const addFriendship = async (req, res) => {
       friendship: friendship,
     });
   } catch (error) {
-    console.error("[addFriendship] error:", error);
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal server error" });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };
 
@@ -209,10 +219,11 @@ export const acceptFriendRequest = async (req, res) => {
       friendship,
     });
   } catch (error) {
-    console.error("[acceptFriendRequest] error:", error);
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal server error" });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };
 
@@ -246,10 +257,11 @@ export const declineFriendRequest = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Friend request declined" });
   } catch (error) {
-    console.error("[declineFriendRequest] error:", error);
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal server error" });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };
 
@@ -287,9 +299,10 @@ export const removeFriendship = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Friendship removed" });
   } catch (error) {
-    console.error("[removeFriendship] error:", error);
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal server error" });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };

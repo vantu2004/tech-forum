@@ -60,6 +60,7 @@ export const register = async (req, res) => {
     ).toString(); // Generate a 6-digit verification token
     const verificationTokenExpiresAt = Date.now() + 3600000; // 1 hour
 
+    // Tạo userAuth
     const savedUserAuth = await UserAuth.create({
       email,
       password: hashedPassword,
@@ -67,10 +68,15 @@ export const register = async (req, res) => {
       verificationTokenExpiresAt,
     });
 
-    await UserProfile.create({
+    // Tạo userProfile
+    const savedProfile = await UserProfile.create({
       userId: savedUserAuth._id,
       name: name || null,
     });
+
+    // Gán profileId vào userAuth
+    savedUserAuth.profile = savedProfile._id;
+    await savedUserAuth.save();
 
     generateTokenAndSetCookie(res, savedUserAuth._id);
 
@@ -284,7 +290,7 @@ export const forgotPassword = async (req, res) => {
       message: "Password reset email sent",
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({
       success: false,
       error: "Internal server error",
@@ -320,6 +326,10 @@ export const resetPassword = async (req, res) => {
       message: "Password reset successful",
     });
   } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };

@@ -9,6 +9,24 @@ const conversationSchema = new mongoose.Schema(
         required: true,
       },
     ],
+    isGroup: {
+      type: Boolean,
+      default: false, // phân biệt chat 1-1 hay nhóm
+    },
+    groupName: {
+      type: String,
+      default: null, // tên nhóm
+    },
+    groupAvatar: {
+      type: String,
+      default: null, // ảnh đại diện nhóm
+    },
+    admins: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserAuth",
+      },
+    ], // danh sách quản trị viên nhóm
   },
   { timestamps: true }
 );

@@ -13,6 +13,12 @@ const userAuthSchema = new mongoose.Schema(
     resetPasswordExpiresAt: { type: Date, default: null },
     verificationToken: { type: String, default: null },
     verificationTokenExpiresAt: { type: Date, default: null },
+
+    // ref tới UserProfile
+    profile: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserProfile",
+    },
   },
   { timestamps: true }
 );

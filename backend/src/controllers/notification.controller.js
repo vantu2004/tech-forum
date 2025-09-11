@@ -9,7 +9,11 @@ export const getAllNotifications = async (req, res) => {
 
     res.status(200).json({ success: true, notifications });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };
 
@@ -37,7 +41,11 @@ export const markAsRead = async (req, res) => {
       notification,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };
 
@@ -51,6 +59,10 @@ export const getUnreadNotifications = async (req, res) => {
 
     res.status(200).json({ success: true, notifications });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };

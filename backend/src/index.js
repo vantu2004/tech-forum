@@ -10,6 +10,7 @@ import commentRoutes from "./routes/comment.route.js";
 import userFriendshipRoutes from "./routes/userFriendship.route.js";
 import conversationRoutes from "./routes/conversation.route.js";
 import messageRoutes from "./routes/message.route.js";
+import cors from "cors";
 
 dotenv.config();
 
@@ -17,6 +18,13 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use("/api/users", userAuthRoutes);
 app.use("/api/users/profile", userProfileRoutes);

@@ -113,7 +113,9 @@ export const login = async (req, res) => {
 
     const userAuth = await UserAuth.findOne({ email });
     if (!userAuth) {
-      return res.status(404).json({ success: false, error: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, error: "Invalid credentials" });
     }
 
     if (!userAuth.isVerified) {

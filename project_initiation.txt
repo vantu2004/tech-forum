@@ -28,6 +28,12 @@
     2.7. Cài thư viện call API
     -   npm i axios
 
+    2.8. Cài thư viện animation
+    -   npm i framer-motion
+
+    2.9. Cài thư viện thông báo
+    -   npm i react-hot-toast
+
 3. Backend
     3.1. Tạo package.json
     -   npm init -y
@@ -42,5 +48,8 @@
 
     3.5. Cài Gmail SMTP
     -   npm i nodemailer
+
+    3.6. Cài Cors
+    -   npm i cors
 
 

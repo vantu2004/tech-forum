@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import useGoogleAuth from "../../hooks/useGoogleAuth.js";
 
 const SignUpPage = () => {
@@ -6,7 +7,14 @@ const SignUpPage = () => {
 
   return (
     <section className="h-full flex items-center justify-center bg-gray-50 px-6 sm:px-12">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+      <motion.div
+        className="w-full max-w-md bg-white rounded-xl shadow-lg p-8"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 120, damping: 18 }}
+        // tùy chọn: chỉ chạy 1 lần khi vào viewport
+        // viewport={{ once: true, amount: 0.3 }}
+      >
         {/* Title */}
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">
           Join TechForum
@@ -89,7 +97,7 @@ const SignUpPage = () => {
           </a>
           .
         </p>
-      </div>
+      </motion.div>
     </section>
   );
 };

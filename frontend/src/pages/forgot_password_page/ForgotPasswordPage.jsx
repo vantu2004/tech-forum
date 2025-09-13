@@ -1,20 +1,25 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { ArrowLeft, Loader, Mail } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useUserAuthStore } from "../../stores/useUserAuthStore";
+import { FiLoader } from "react-icons/fi";
+import toast from "react-hot-toast";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const isLoading = false;
-
-  // const { isLoading, forgotPassword } = useAuthStore();
+  const { isLoading, forgotPassword } = useUserAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // await forgotPassword(email);
-    // setIsSubmitted(true);
+    try {
+      await forgotPassword(email);
+      setIsSubmitted(true);
+    } catch (error) {
+      toast.error(error?.message || "Error forgot password");
+    }
   };
 
   return (
@@ -67,10 +72,7 @@ const ForgotPasswordPage = () => {
                          hover:bg-blue-700 transition flex items-center justify-center"
             >
               {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <Loader className="h-5 w-5 animate-spin" />
-                  Sending...
-                </span>
+                <FiLoader className="animate-spin" />
               ) : (
                 "Send Reset Link"
               )}

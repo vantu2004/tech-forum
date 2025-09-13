@@ -2,33 +2,34 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { Lock } from "lucide-react";
+import { useUserAuthStore } from "../../stores/useUserAuthStore";
+import { toast } from "react-hot-toast";
+import { FiLoader } from "react-icons/fi";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const isLoading = false;
-  // const { resetPassword, error, isLoading, message } = useAuthStore();
+
+  const { resetPassword, isLoading, message } = useUserAuthStore();
+
   const { token } = useParams();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if (password !== confirmPassword) {
-    //   toast.error("Passwords do not match");
-    //   return;
-    // }
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
-    // try {
-    //   await resetPassword(token, password);
-    //   toast.success(
-    //     "Password reset successfully, redirecting to login page..."
-    //   );
-    //   setTimeout(() => navigate("/login"), 2000);
-    // } catch (err) {
-    //   console.error(err);
-    //   toast.error(err?.message || "Error resetting password");
-    // }
+    try {
+      await resetPassword(token, password);
+      toast.success(message || "Password reset successful");
+      setTimeout(() => navigate("/login"), 2000);
+    } catch (err) {
+      toast.error(err?.message || "Error reset password");
+    }
   };
 
   return (
@@ -43,14 +44,6 @@ const ResetPasswordPage = () => {
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">
           Reset Password
         </h1>
-
-        {/* Messages */}
-        {/* {error && (
-          <p className="text-red-600 text-sm mb-4 text-center">{error}</p>
-        )}
-        {message && (
-          <p className="text-green-600 text-sm mb-4 text-center">{message}</p>
-        )} */}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -101,9 +94,13 @@ const ResetPasswordPage = () => {
             type="submit"
             disabled={isLoading}
             className="w-full bg-blue-600 text-white font-medium py-2 rounded-md
-                       hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                       hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            {isLoading ? "Resetting..." : "Set New Password"}
+            {isLoading ? (
+              <FiLoader className="animate-spin" />
+            ) : (
+              "Set New Password"
+            )}
           </button>
         </form>
       </motion.div>

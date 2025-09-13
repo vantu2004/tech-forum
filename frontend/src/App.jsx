@@ -15,6 +15,7 @@ import NotificationPage from "./pages/notification_page/NotificationPage.jsx";
 import ForgotPasswordPage from "./pages/forgot_password_page/ForgotPasswordPage.jsx";
 import EmailVerificationPage from "./pages/email_verification_page/EmailVerificationPage.jsx";
 import ResetPasswordPage from "./pages/reset_password_page/ResetPasswordPage.jsx";
+import EmailVerificationManualPage from "./pages/email_verification_page/EmailVerificationManualPage.jsx";
 import { useEffect } from "react";
 import { useUserAuthStore } from "./stores/useUserAuthStore";
 import { Navigate } from "react-router-dom";
@@ -97,6 +98,14 @@ function App() {
             element={
               <RedirectAuthenticatedUser>
                 <EmailVerificationPage />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/re-verify-email"
+            element={
+              <RedirectAuthenticatedUser>
+                <EmailVerificationManualPage />
               </RedirectAuthenticatedUser>
             }
           />

@@ -1,6 +1,4 @@
 import { create } from "zustand";
-import axios from "axios";
-import { toast } from "react-hot-toast";
 import axiosInstance from "../lib/axios";
 
 export const useUserAuthStore = create((set) => ({
@@ -49,7 +47,7 @@ export const useUserAuthStore = create((set) => ({
         userAuth: null,
         isAuthenticated: false,
       });
-      toast.error(error.response?.data?.error || "Error logging in");
+      throw new Error(error.response?.data?.error || "Error logging in user");
     } finally {
       set({ isLoading: false });
     }
@@ -65,14 +63,38 @@ export const useUserAuthStore = create((set) => ({
       });
       set({
         userAuth: data.userAuth,
-        isAuthenticated: true,
       });
+    } catch (error) {
+      console.log(error);
+      set({
+        userAuth: null,
+      });
+      throw new Error(error.response?.data?.error || "Error registering user");
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  verifyEmail: async (email, OTP) => {
+    set({ isLoading: true });
+    try {
+      const { data } = await axiosInstance.post("/users/verify-email", {
+        email,
+        OTP,
+      });
+      if (data.userAuth) {
+        set({
+          userAuth: data.userAuth,
+          isAuthenticated: true,
+        });
+      }
     } catch (error) {
       console.log(error);
       set({
         userAuth: null,
         isAuthenticated: false,
       });
+      throw new Error(error.response?.data?.error || "Error verifying email");
     } finally {
       set({ isLoading: false });
     }

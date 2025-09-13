@@ -248,6 +248,15 @@ export const verifyEmail = async (req, res) => {
 
     await sendWelcomeEmail(userAuth.email, userProfile.name);
 
+    // kiểm tra token cookie
+    const token = req.cookies?.token;
+    if (!token) {
+      return res.status(200).json({
+        success: true,
+        message: "Email verified successfully",
+      });
+    }
+
     // 2 field kia đã bị xóa nên chỉ cần ko trả về password là được
     res.status(200).json({
       success: true,

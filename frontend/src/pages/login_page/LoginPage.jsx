@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import useGoogleAuth from "../../hooks/useGoogleAuth";
 import { useUserAuthStore } from "../../stores/useUserAuthStore";
 import { FiLoader } from "react-icons/fi";
+import { toast } from "react-hot-toast";
 
 const LoginPage = () => {
   const { login, isLoading } = useUserAuthStore();
@@ -12,9 +13,13 @@ const LoginPage = () => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    login(email, password);
+    try {
+      await login(email, password);
+    } catch (error) {
+      toast.error(error?.message || "Error logging in user");
+    }
   };
 
   return (
@@ -77,18 +82,17 @@ const LoginPage = () => {
             disabled={isLoading}
             aria-busy={isLoading}
           >
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <FiLoader className="animate-spin" />
-                <span>Loading</span>
-              </div>
-            ) : (
-              "Sign In"
-            )}
+            {isLoading ? <FiLoader className="animate-spin" /> : "Sign In"}
           </button>
 
-          {/* Forgot password */}
-          <div className="text-right -mt-1">
+          {/* Verify + Forgot */}
+          <div className="flex justify-between -mt-1">
+            <Link
+              to="/verify-email"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Verify email
+            </Link>
             <Link
               to="/forgot-password"
               className="text-sm text-blue-600 hover:underline"

@@ -1,9 +1,32 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useGoogleAuth from "../../hooks/useGoogleAuth.js";
+import React from "react";
+import { useUserAuthStore } from "../../stores/useUserAuthStore";
+import { FiLoader } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const SignUpPage = () => {
   const login = useGoogleAuth();
+
+  const { register, isLoading } = useUserAuthStore();
+
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [name, setName] = React.useState("");
+
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await register(email, password, name); // chờ API chạy xong
+      navigate("/verify-email");
+    } catch (error) {
+      toast.error(error?.message || "Error signing up user");
+    }
+  };
 
   return (
     <section className="h-full flex items-center justify-center bg-gray-50 px-6 sm:px-12">
@@ -41,10 +64,12 @@ const SignUpPage = () => {
         </div>
 
         {/* Sign up form */}
-        <form className="flex flex-col gap-4">
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <input
             type="text"
             placeholder="Enter your full name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="border border-gray-300 rounded-md px-4 py-2
              focus:ring-2 focus:ring-blue-500 outline-none
              placeholder-gray-400 text-gray-900 bg-white"
@@ -53,6 +78,8 @@ const SignUpPage = () => {
           <input
             type="email"
             placeholder="Enter your email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="border border-gray-300 rounded-md px-4 py-2
              focus:ring-2 focus:ring-blue-500 outline-none
              placeholder-gray-400 text-gray-900 bg-white"
@@ -61,6 +88,8 @@ const SignUpPage = () => {
           <input
             type="password"
             placeholder="Create a password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="border border-gray-300 rounded-md px-4 py-2
              focus:ring-2 focus:ring-blue-500 outline-none
              placeholder-gray-400 text-gray-900 bg-white"
@@ -68,9 +97,10 @@ const SignUpPage = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-medium py-2 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white font-medium py-2 rounded-md hover:bg-blue-700 transition flex items-center justify-center"
+            disabled={isLoading}
           >
-            Sign Up
+            {isLoading ? <FiLoader className="animate-spin" /> : "Sign up"}
           </button>
         </form>
 

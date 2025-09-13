@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -7,29 +7,20 @@ import { toast } from "react-hot-toast";
 import OTPInput from "../../components/common/OTPInput";
 import { useUserAuthStore } from "../../stores/useUserAuthStore";
 
-const EmailVerificationPage = () => {
+const EmailVerificationManualPage = () => {
+  const [email, setEmail] = useState("");
   const [code, setCode] = useState(new Array(6).fill(""));
   const navigate = useNavigate();
-  const { isLoading, verifyEmail, userAuth } = useUserAuthStore();
+  const { isLoading, verifyEmail } = useUserAuthStore();
 
   const submitCode = async () => {
     try {
-      await verifyEmail(userAuth.email, code.join(""));
-      navigate("/");
+      await verifyEmail(email, code.join(""));
+      navigate("/login");
     } catch (err) {
       toast.error(err?.message || "Verification failed");
     }
   };
-
-  useEffect(() => {
-    if (!userAuth || !userAuth.email) {
-      navigate("/re-verify-email");
-      return;
-    }
-    if (code.every((d) => d !== "") && !isLoading) {
-      submitCode();
-    }
-  }, [code]);
 
   return (
     <section className="h-full flex items-center justify-center bg-gray-50 px-6 sm:px-12 text-gray-900">
@@ -43,14 +34,22 @@ const EmailVerificationPage = () => {
           Verify Your Email
         </h1>
         <p className="text-center text-gray-600 mb-6">
-          Enter the 6-digit code sent to <b>{userAuth?.email}</b>
+          Enter your email and the 6-digit code.
         </p>
+
+        <input
+          type="email"
+          placeholder="Email Address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+        />
 
         <OTPInput code={code} setCode={setCode} />
 
         <button
           onClick={submitCode}
-          disabled={isLoading || code.some((d) => !d)}
+          disabled={isLoading || code.some((d) => !d) || !email}
           className="w-full mt-6 bg-blue-600 text-white py-2 rounded-md flex items-center justify-center disabled:opacity-50"
         >
           {isLoading ? <FiLoader className="animate-spin" /> : "Verify Email"}
@@ -69,4 +68,4 @@ const EmailVerificationPage = () => {
   );
 };
 
-export default EmailVerificationPage;
+export default EmailVerificationManualPage;

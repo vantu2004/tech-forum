@@ -86,7 +86,17 @@ export const likeDislikePost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find().sort({ createdAt: -1 });
+    const posts = await Post.find()
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "userId", // populate từ Post → UserAuth
+        select: "email profile", // chọn trường cần lấy
+        populate: {
+          path: "profile", // populate tiếp từ UserAuth → UserProfile
+          select: "name headline profile_pic", // chỉ lấy field cần thiết
+        },
+      })
+      .populate("likes", "email"); // nếu muốn populate thêm mảng likes
 
     res.status(200).json({
       success: true,

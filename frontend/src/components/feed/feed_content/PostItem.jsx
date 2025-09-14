@@ -7,14 +7,14 @@ import {
   FiSend,
 } from "react-icons/fi";
 import logo from "../../../assets/navbar/logo.png";
+import { FaCircleUser } from "react-icons/fa6";
+import { formatDate } from "../../../utils/date.js";
 
-const PostItem = () => {
+const PostItem = ({ post }) => {
   const [expanded, setExpanded] = useState(false);
   const [showComments, setShowComments] = useState(false);
 
-  const text =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vitae massa eu augue tristique feugiat. " +
-    "Suspendisse potenti. Proin non purus justo. Aliquam erat volutpat. Pellentesque habitant morbi tristique senectus et netus.";
+  const text = post.desc;
 
   const maxWords = 20; // giới hạn số từ
   const words = text.split(" ");
@@ -23,6 +23,10 @@ const PostItem = () => {
   const displayText = expanded
     ? text
     : words.slice(0, maxWords).join(" ") + (showSeeMore ? "..." : "");
+
+  const userName = post.userId.profile.name;
+  const userHeadline = post.userId.profile.healine;
+  const userAvatar = post.userId.profile.profile_pic;
 
   const [comments] = useState([
     {
@@ -49,10 +53,17 @@ const PostItem = () => {
     <div className="bg-white rounded-lg shadow-sm p-4">
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
-        <img src={logo} alt="User" className="w-10 h-10 rounded-full" />
+        {userAvatar ? (
+          <img src={userAvatar} alt="User" className="w-10 h-10 rounded-full" />
+        ) : (
+          <FaCircleUser className="w-10 h-10 rounded-full text-gray-400" />
+        )}
         <div>
-          <h3 className="font-semibold text-gray-800">Dummy User</h3>
-          <p className="text-xs text-gray-500">DSE-2 Engineer @Amazon</p>
+          <h3 className="font-semibold text-gray-800">{userName}</h3>
+          <p className="text-xs text-gray-500">
+            {userHeadline ? `${userHeadline} - ` : ""}Created at{" "}
+            {formatDate(post.createdAt)}
+          </p>
         </div>
       </div>
 
@@ -72,19 +83,23 @@ const PostItem = () => {
       {/* Media */}
       <div className="mb-3">
         {/* Có thể thay ảnh/video tùy dữ liệu */}
-        <img src={logo} alt="Post Media" className="w-full rounded-lg" />
+        <img
+          src={post.images[0]}
+          alt="Post Media"
+          className="w-full rounded-lg"
+        />
       </div>
 
       {/* Actions */}
       <div className="flex justify-between text-gray-600 text-sm border-t pt-2">
         <button className="flex items-center gap-1 hover:text-blue-600">
-          <FiThumbsUp /> <span>123</span>
+          <FiThumbsUp /> <span>{post.likes.length}</span>
         </button>
         <button
           onClick={() => setShowComments(!showComments)}
           className="flex items-center gap-1 hover:text-blue-600"
         >
-          <FiMessageCircle /> <span>45</span>
+          <FiMessageCircle /> <span>{post.comments}</span>
         </button>
         <button className="flex items-center gap-1 hover:text-blue-600">
           <FiShare2 /> <span>12</span>

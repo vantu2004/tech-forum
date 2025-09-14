@@ -38,14 +38,24 @@ const LoginPage = () => {
         {/* Google Login */}
         <button
           onClick={() => loginGoogle()}
-          className="flex items-center justify-center gap-2 w-full border border-gray-300 rounded-md py-3 hover:bg-gray-100 transition mb-4"
+          className="flex items-center justify-center gap-2 w-full border border-gray-300 rounded-md py-3 hover:bg-gray-100 transition mb-4 "
+          disabled={isLoading}
         >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google"
-            className="w-5 h-5"
-          />
-          <span className="font-medium text-gray-700">Sign in with Google</span>
+          {isLoading ? (
+            <FiLoader className="animate-spin text-blue-600" />
+          ) : (
+            <>
+              {" "}
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google"
+                className="w-5 h-5"
+              />
+              <span className="font-medium text-gray-700">
+                Sign in with Google
+              </span>
+            </>
+          )}
         </button>
 
         {/* Divider */}

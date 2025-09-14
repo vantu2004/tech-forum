@@ -11,7 +11,12 @@ import {
 } from "../smtp/smtp.send.js";
 import crypto from "crypto";
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const oauth2Client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  // "postmessage" là redirect URI giả lập do Google cung cấp, dùng cho các ứng dụng muốn lấy code từ popup (FE) rồi tự gửi code về backend để đổi token.
+  "postmessage"
+);
 
 export const checkAuth = async (req, res) => {
   try {
@@ -154,50 +159,78 @@ export const login = async (req, res) => {
 };
 
 export const loginGoogle = async (req, res) => {
-  const { idToken } = req.body;
-
   try {
-    if (!idToken) {
-      return res.status(400).json({
-        success: false,
-        error: "ID token is required",
-      });
-    }
+    const { code } = req.body;
+    if (!code)
+      return res.status(400).json({ success: false, error: "Missing code" });
 
-    // Verify token
-    const ticket = await client.verifyIdToken({
-      idToken,
+    // 1) Đổi code -> tokens (access_token, id_token, refresh_token nếu có)
+    const { tokens } = await oauth2Client.getToken(code);
+
+    // 2) Verify id_token để lấy profile
+    const ticket = await oauth2Client.verifyIdToken({
+      // id-token dùng authentication, access-token dùng authorization
+      idToken: tokens.id_token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
+    const payload = ticket.getPayload();
+    const {
+      sub: googleId,
+      email,
+      email_verified: emailVerified,
+      name,
+      picture,
+    } = payload || {};
 
-    const { sub, email, name, picture } = ticket.getPayload();
+    if (!email || !emailVerified) {
+      return res
+        .status(401)
+        .json({ success: false, error: "Unverified Google account" });
+    }
 
-    // Tìm user theo googleId
-    const userAuth = await UserAuth.findOne({ googleId: sub });
+    // 3) Upsert user (link theo email nếu có)
+    let userAuth = await UserAuth.findOne({ $or: [{ googleId }, { email }] });
 
     if (!userAuth) {
-      // Nếu chưa có thì tạo mới
       userAuth = await UserAuth.create({
-        googleId: sub,
+        googleId,
         email,
         isVerified: true,
+        lastLogin: new Date(),
       });
 
       await UserProfile.create({
         userId: userAuth._id,
-        name,
-        profile_pic: picture,
+        name: name ?? "User",
+        profile_pic: picture ?? null,
       });
+    } else {
+      let changed = false;
+      if (!userAuth.googleId) {
+        userAuth.googleId = googleId;
+        changed = true;
+      }
+      if (!userAuth.isVerified) {
+        userAuth.isVerified = true;
+        changed = true;
+      }
+      userAuth.lastLogin = new Date();
+      if (changed) await userAuth.save();
+
+      // tạo profile nếu chưa có
+      await UserProfile.updateOne(
+        { userId: userAuth._id },
+        {
+          $setOnInsert: { name: name ?? "User", profile_pic: picture ?? null },
+        },
+        { upsert: true }
+      );
     }
 
+    // 4) Tạo JWT nội bộ & set cookie HTTP-only
     generateTokenAndSetCookie(res, userAuth._id);
 
-    // Cập nhật lastLogin
-    userAuth.lastLogin = Date.now();
-    await userAuth.save();
-
-    // Trả về dữ liệu an toàn
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Login successful",
       userAuth: {
@@ -205,12 +238,11 @@ export const loginGoogle = async (req, res) => {
         password: undefined,
       },
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+  } catch (err) {
+    console.error("loginGoogleAuthCode error:", err);
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal server error" });
   }
 };
 

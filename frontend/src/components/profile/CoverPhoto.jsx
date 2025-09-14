@@ -1,8 +1,10 @@
 import { useState } from "react";
 import logo from "../../assets/navbar/logo.png";
-import { FiCamera, FiEdit, FiCheck } from "react-icons/fi";
+import { FiCamera, FiEdit, FiCheck, FiLogOut, FiLoader } from "react-icons/fi";
+import { useUserAuthStore } from "../../stores/useUserAuthStore";
+import { useNavigate } from "react-router-dom";
 
-const CoverPhoto = ({ onOpenInfomationModal }) => {
+const CoverPhoto = ({ onOpenInfomationModal, onLogout }) => {
   // Cover states
   const [cover, setCover] = useState(
     "https://images.unsplash.com/photo-1522199710521-72d69614c702?w=1200"
@@ -14,6 +16,19 @@ const CoverPhoto = ({ onOpenInfomationModal }) => {
   const [avatar, setAvatar] = useState(logo);
   const [previewAvatar, setPreviewAvatar] = useState(null);
   const [fileAvatar, setFileAvatar] = useState(null);
+
+  const { logout, isLoading } = useUserAuthStore();
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   // handle cover change
   const handleCoverChange = (e) => {
@@ -36,10 +51,7 @@ const CoverPhoto = ({ onOpenInfomationModal }) => {
   // save cover
   const handleSaveCover = async () => {
     if (!fileCover) return;
-
     // Upload logic ở đây
-    // ...
-
     setCover(previewCover);
     setPreviewCover(null);
     setFileCover(null);
@@ -48,10 +60,7 @@ const CoverPhoto = ({ onOpenInfomationModal }) => {
   // save avatar
   const handleSaveAvatar = async () => {
     if (!fileAvatar) return;
-
     // Upload logic ở đây
-    // ...
-
     setAvatar(previewAvatar);
     setPreviewAvatar(null);
     setFileAvatar(null);
@@ -65,6 +74,19 @@ const CoverPhoto = ({ onOpenInfomationModal }) => {
         alt="Cover"
         className="w-full h-60 object-cover rounded-lg shadow"
       />
+
+      {/* Logout button */}
+      <button
+        onClick={handleLogout}
+        className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <FiLoader className="animate-spin text-red-700" />
+        ) : (
+          <FiLogOut className="text-red-700" />
+        )}
+      </button>
 
       {/* Chọn ảnh bìa / Save */}
       {previewCover ? (
@@ -95,7 +117,7 @@ const CoverPhoto = ({ onOpenInfomationModal }) => {
       {/* Edit info button */}
       <button
         onClick={onOpenInfomationModal}
-        className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
+        className="absolute top-3 right-24 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
       >
         <FiEdit className="text-gray-700" />
       </button>
@@ -114,7 +136,7 @@ const CoverPhoto = ({ onOpenInfomationModal }) => {
           {previewAvatar ? (
             <button
               onClick={handleSaveAvatar}
-              className="absolute bottom-2 right-2 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
+              className="absolute bottom-2 right-24 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
             >
               <FiCheck className="text-green-600" />
             </button>
@@ -129,7 +151,7 @@ const CoverPhoto = ({ onOpenInfomationModal }) => {
               />
               <label
                 htmlFor="avatarInput"
-                className="absolute bottom-2 right-2 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition cursor-pointer"
+                className="absolute bottom-2 right-24 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition cursor-pointer"
               >
                 <FiCamera className="text-gray-700" />
               </label>

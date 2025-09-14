@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useGoogleAuth from "../../hooks/useGoogleAuth.js";
+import { useUserAuthStore } from "../../stores/useUserAuthStore";
+import { FiLoader } from "react-icons/fi";
 
 const container = {
   hidden: { opacity: 0 },
@@ -30,6 +32,8 @@ const fadeRight = {
 
 const LandingPage = () => {
   const login = useGoogleAuth();
+
+  const { isLoading } = useUserAuthStore();
 
   return (
     <motion.section
@@ -63,15 +67,23 @@ const LandingPage = () => {
               className="flex items-center justify-center gap-2 border border-gray-300 rounded-md py-3 hover:bg-gray-100 transition"
               whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}
+              disabled={isLoading}
             >
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google"
-                className="w-5 h-5"
-              />
-              <span className="font-medium text-gray-700">
-                Sign in with Google
-              </span>
+              {isLoading ? (
+                <FiLoader className="animate-spin text-blue-600" />
+              ) : (
+                <>
+                  {" "}
+                  <img
+                    src="https://www.svgrepo.com/show/475656/google-color.svg"
+                    alt="Google"
+                    className="w-5 h-5"
+                  />
+                  <span className="font-medium text-gray-700">
+                    Sign in with Google
+                  </span>
+                </>
+              )}
             </motion.button>
 
             <motion.div

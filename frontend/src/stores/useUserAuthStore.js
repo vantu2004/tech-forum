@@ -8,6 +8,10 @@ export const useUserAuthStore = create((set) => ({
   isCheckingAuth: true,
   message: null,
 
+  // dùng cho useGoogleAuth hook
+  setIsLoading: (isLoading) => set({ isLoading }),
+  setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
+
   setUserAuth: (userAuth) => set({ userAuth }),
 
   checkAuth: async () => {
@@ -139,13 +143,13 @@ export const useUserAuthStore = create((set) => ({
   logout: async () => {
     set({ isLoading: true });
     try {
-      await axiosInstance.get("/users/logout");
+      await axiosInstance.post("/users/logout");
       set({
         userAuth: null,
         isAuthenticated: false,
       });
     } catch (error) {
-      console.log(error);
+      throw new Error(error.response?.data?.error || "Error logging out user");
     } finally {
       set({ isLoading: false });
     }

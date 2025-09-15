@@ -199,11 +199,14 @@ export const loginGoogle = async (req, res) => {
         lastLogin: new Date(),
       });
 
-      await UserProfile.create({
+      const savedProfile = await UserProfile.create({
         userId: userAuth._id,
         name: name ?? "User",
         profile_pic: picture ?? null,
       });
+
+      userAuth.profile = savedProfile._id;
+      await userAuth.save();
     } else {
       let changed = false;
       if (!userAuth.googleId) {

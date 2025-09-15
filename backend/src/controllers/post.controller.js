@@ -1,11 +1,12 @@
 import Post from "../models/post.model.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const addPost = async (req, res) => {
   try {
     const userId = req.userId;
     const { desc, images } = req.body;
 
-    // Kiểm tra dữ liệu đầu vào
+    // Validate input
     if (!desc && (!images || images.length === 0)) {
       return res.status(400).json({
         success: false,
@@ -13,14 +14,28 @@ export const addPost = async (req, res) => {
       });
     }
 
+    let imageUrls = [];
+
+    if (images && images.length > 0) {
+      // Upload từng ảnh lên Cloudinary
+      const uploadPromises = images.map((img) =>
+        cloudinary.uploader.upload(img, {
+          folder: "posts", // thư mục trên Cloudinary
+          resource_type: "image",
+        })
+      );
+
+      const results = await Promise.all(uploadPromises);
+      imageUrls = results.map((r) => r.secure_url);
+    }
+
     // Tạo bài viết mới
     const newPost = new Post({
       userId,
       desc,
-      images,
+      images: imageUrls, // lưu URL thay vì base64
     });
 
-    // Lưu vào DB
     const savedPost = await newPost.save();
 
     res.status(201).json({
@@ -29,7 +44,7 @@ export const addPost = async (req, res) => {
       post: savedPost,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error creating post:", error);
     res.status(500).json({
       success: false,
       error: "Internal server error",

@@ -1,10 +1,18 @@
 import ProfileInfoCard from "../common/ProfileInfoCard";
+import { useUserProfile } from "../../stores/useUserProfile";
+import { useEffect } from "react";
 
 const LeftSidebar = () => {
+  const { userProfile, fetchUserProfile, isLoading } = useUserProfile();
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
+
   return (
     <div className="space-y-4 sticky top-20">
       {/* Card 1: Profile Info */}
-      <ProfileInfoCard />
+      <ProfileInfoCard isLoading={isLoading} userProfile={userProfile} />
 
       {/* Card 2: Analytics */}
       <div className="bg-white rounded-lg shadow-sm border p-4">

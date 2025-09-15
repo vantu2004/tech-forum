@@ -16,7 +16,7 @@ const FeedContent = ({ onOpenPostModal }) => {
 
       {isLoading ? (
         <div className="flex justify-center items-center py-8">
-          <span className="loading loading-spinner loading-xl"></span>
+          <span className="loading loading-spinner loading-xl text-blue-300"></span>
         </div>
       ) : (
         posts.map((post) => <PostItem key={post.id} post={post} />)

@@ -1,16 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiMenu, FiX, FiMessageSquare, FiSearch } from "react-icons/fi";
 import { FaHome, FaUserFriends, FaBriefcase, FaBell } from "react-icons/fa";
-import { BsBuildingFill } from "react-icons/bs";
+import { FaCircleUser } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/navbar/logo.png";
+import { useUserProfile } from "../../stores/useUserProfile";
 
 const Navbar_v2 = () => {
   const [open, setOpen] = useState(false);
+  const { userProfile, fetchUserProfile } = useUserProfile();
 
-  const userId = "1";
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
-  const links = [
+  // Links cố định
+  const baseLinks = [
     {
       href: "/feed",
       label: "Home",
@@ -36,9 +41,19 @@ const Navbar_v2 = () => {
       label: "Notification",
       icon: <FaBell className="text-lg flex-shrink-0" />,
     },
-
-    { href: `/profile/${userId}`, label: "", avatar: true },
   ];
+
+  // Link profile riêng
+  const profileHref = userProfile?.userId
+    ? `/profile/${userProfile.userId}`
+    : "/profile/me";
+  const meLink = {
+    type: "profile",
+    href: profileHref,
+    avatar: userProfile?.profile_pic || null,
+  };
+
+  const links = [...baseLinks, meLink];
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 border-b border-gray-300 bg-white shadow-sm">
@@ -64,10 +79,10 @@ const Navbar_v2 = () => {
 
         {/* Desktop Links */}
         <div className="hidden sm:flex items-center gap-8">
-          {links.map(({ href, label, icon, avatar }) => (
+          {links.map((link) => (
             <NavLink
-              key={href}
-              to={href}
+              key={link.href}
+              to={link.href}
               className={({ isActive }) =>
                 `flex flex-col items-center justify-center transition text-xs border-b-2 ${
                   isActive
@@ -76,16 +91,22 @@ const Navbar_v2 = () => {
                 }`
               }
             >
-              {avatar ? (
-                <img
-                  src={logo}
-                  alt="Me"
-                  className="h-9 w-9 rounded-full object-cover flex-shrink-0"
-                />
+              {link.type === "profile" ? (
+                link.avatar ? (
+                  <img
+                    src={link.avatar}
+                    alt="Me"
+                    className="h-9 w-9 rounded-full object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <FaCircleUser className="h-9 w-9 rounded-full text-gray-400 flex-shrink-0" />
+                )
               ) : (
-                icon
+                <>
+                  {link.icon}
+                  <span className="mt-0.5">{link.label}</span>
+                </>
               )}
-              <span className="mt-0.5">{label}</span>
             </NavLink>
           ))}
         </div>
@@ -102,10 +123,10 @@ const Navbar_v2 = () => {
       {/* Mobile Menu */}
       {open && (
         <div className="sm:hidden flex flex-col items-center gap-4 py-4 border-t border-gray-300 bg-white shadow-md">
-          {links.map(({ href, label }) => (
+          {baseLinks.map((link) => (
             <NavLink
-              key={href}
-              to={href}
+              key={link.href}
+              to={link.href}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 isActive
@@ -113,9 +134,20 @@ const Navbar_v2 = () => {
                   : "text-blue-600 font-medium hover:underline"
               }
             >
-              {label || "Me"}
+              {link.label}
             </NavLink>
           ))}
+          <NavLink
+            to={meLink.href}
+            onClick={() => setOpen(false)}
+            className={({ isActive }) =>
+              isActive
+                ? "text-blue-600 font-semibold underline"
+                : "text-blue-600 font-medium hover:underline"
+            }
+          >
+            Me
+          </NavLink>
         </div>
       )}
     </nav>

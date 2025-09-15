@@ -1,12 +1,28 @@
-import logo from "../../../assets/navbar/logo.png";
 import { FiVideo, FiImage, FiFileText } from "react-icons/fi";
+import { useUserProfile } from "../../../stores/useUserProfile";
+import { useEffect } from "react";
+import { FaCircleUser } from "react-icons/fa6";
 
 const PostBox = ({ onOpenPostModal }) => {
+  const { userProfile, fetchUserProfile } = useUserProfile();
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
+
   return (
     <div className="bg-white border rounded-lg shadow-sm p-4">
       {/* Open modal */}
       <div className="flex items-center gap-2">
-        <img src={logo} alt="User" className="w-10 h-10 rounded-full" />
+        {userProfile?.profile_pic ? (
+          <img
+            src={userProfile.profile_pic}
+            alt="User"
+            className="w-10 h-10 rounded-full"
+          />
+        ) : (
+          <FaCircleUser className="w-10 h-10 text-gray-400" />
+        )}
         <button
           onClick={onOpenPostModal}
           className="flex-1 border rounded-full px-4 py-2 text-sm text-gray-500 text-left hover:bg-gray-50 focus:outline-none"

@@ -3,7 +3,7 @@ import { usePostStore } from "../../../stores/usePostStore";
 import PostBox from "./PostBox";
 import PostItem from "./PostItem";
 
-const FeedContent = ({ onOpenPostModal }) => {
+const FeedContent = ({ onOpenPostModal, onOpenImageViewer }) => {
   const { fetchPosts, posts, isLoading } = usePostStore();
 
   useEffect(() => {
@@ -19,7 +19,13 @@ const FeedContent = ({ onOpenPostModal }) => {
           <span className="loading loading-spinner loading-xl text-blue-300"></span>
         </div>
       ) : (
-        posts.map((post) => <PostItem key={post.id} post={post} />)
+        posts.map((post) => (
+          <PostItem
+            key={post.id}
+            post={post}
+            onOpenImageViewer={onOpenImageViewer}
+          />
+        ))
       )}
     </div>
   );

@@ -36,7 +36,17 @@ export const addPost = async (req, res) => {
       images: imageUrls, // lưu URL thay vì base64
     });
 
-    const savedPost = await newPost.save();
+    let savedPost = await newPost.save();
+
+    // Populate ngay bài vừa tạo
+    savedPost = await savedPost.populate({
+      path: "userId",
+      select: "email profile",
+      populate: {
+        path: "profile",
+        select: "name headline profile_pic",
+      },
+    });
 
     res.status(201).json({
       success: true,

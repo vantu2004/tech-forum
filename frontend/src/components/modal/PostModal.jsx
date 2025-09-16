@@ -65,12 +65,12 @@ const PostModal = ({ onClose }) => {
 
     try {
       await createPost(post);
-      window.location.reload();
     } catch (error) {
       console.log(error);
       toast.error(error?.message || "Error creating post");
-      onClose?.();
     }
+
+    onClose?.();
   };
 
   return (

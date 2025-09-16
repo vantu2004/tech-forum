@@ -9,8 +9,9 @@ import {
 import logo from "../../../assets/navbar/logo.png";
 import { FaCircleUser } from "react-icons/fa6";
 import { formatDate } from "../../../utils/date.js";
+import MediaGrid from "../../common/MediaGrid.jsx";
 
-const PostItem = ({ post }) => {
+const PostItem = ({ post, onOpenImageViewer }) => {
   const [expanded, setExpanded] = useState(false);
   const [showComments, setShowComments] = useState(false);
 
@@ -81,14 +82,10 @@ const PostItem = ({ post }) => {
       </p>
 
       {/* Media */}
-      <div className="mb-3">
-        {/* Có thể thay ảnh/video tùy dữ liệu */}
-        <img
-          src={post.images[0]}
-          alt="Post Media"
-          className="w-full rounded-lg"
-        />
-      </div>
+      <MediaGrid
+        images={post.images}
+        onOpenImage={(idx) => onOpenImageViewer?.(post.images, idx, post)} // 👈 truyền đủ data
+      />
 
       {/* Actions */}
       <div className="flex justify-between text-gray-600 text-sm border-t pt-2">

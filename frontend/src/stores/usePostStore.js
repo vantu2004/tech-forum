@@ -13,6 +13,7 @@ export const usePostStore = create((set) => ({
       const { data } = await axiosInstance.get("/posts");
       set({ posts: data.posts });
     } catch (error) {
+      set({ posts: [] });
       throw new Error(error.response?.data?.error || "Error fetching posts");
     } finally {
       set({ isLoading: false });
@@ -34,9 +35,21 @@ export const usePostStore = create((set) => ({
       });
       return data.post;
     } catch (error) {
+      set({ posts: [] });
       throw new Error(error.response?.data?.error || "Error creating post");
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  likePost: async (postId) => {
+    try {
+      await axiosInstance.post("/posts/like-dislike", {
+        postId,
+      });
+    } catch (error) {
+      set({ posts: [] });
+      console.error("Error liking post", error);
     }
   },
 }));

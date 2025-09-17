@@ -10,10 +10,23 @@ import logo from "../../../assets/navbar/logo.png";
 import { FaCircleUser } from "react-icons/fa6";
 import { formatDate } from "../../../utils/date.js";
 import MediaGrid from "../../common/MediaGrid.jsx";
+import { usePostStore } from "../../../stores/usePostStore";
+import { useUserAuthStore } from "../../../stores/useUserAuthStore.js";
 
 const PostItem = ({ post, onOpenImageViewer }) => {
   const [expanded, setExpanded] = useState(false);
   const [showComments, setShowComments] = useState(false);
+
+  const { userAuth } = useUserAuthStore();
+
+  const checkIfUserLikedPost = () => {
+    return (post.likes ?? []).some(
+      (like) => String(like?._id ?? like) === String(userAuth?._id)
+    );
+  };
+
+  const [isLiked, setIsLiked] = useState(checkIfUserLikedPost());
+  const [likeCount, setLikeCount] = useState(post.likes.length);
 
   const text = post.desc;
 
@@ -28,6 +41,22 @@ const PostItem = ({ post, onOpenImageViewer }) => {
   const userName = post.userId.profile.name;
   const userHeadline = post.userId.profile.healine;
   const userAvatar = post.userId.profile.profile_pic;
+
+  const { likePost } = usePostStore();
+
+  const handleToggleLike = async () => {
+    // cập nhật UI ngay
+    setIsLiked(!isLiked);
+    setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
+
+    try {
+      await likePost(post._id); // gọi API
+    } catch (err) {
+      console.log(err);
+      setIsLiked(checkIfUserLikedPost());
+      setLikeCount(post.likes.length);
+    }
+  };
 
   const [comments] = useState([
     {
@@ -88,17 +117,26 @@ const PostItem = ({ post, onOpenImageViewer }) => {
       />
 
       {/* Actions */}
-      <div className="flex justify-between text-gray-600 text-sm border-t pt-2">
-        <button className="flex items-center gap-1 hover:text-blue-600">
-          <FiThumbsUp /> <span>{post.likes.length}</span>
+      <div className="flex justify-between text-gray-300 text-sm border-t pt-2">
+        <button
+          onClick={handleToggleLike}
+          className={`flex items-center gap-1 ${
+            isLiked ? "text-blue-600" : "text-gray-600"
+          } hover:text-blue-600`}
+        >
+          <FiThumbsUp />
+          <span>
+            {likeCount <= 1 ? `${likeCount} Like` : `${likeCount} Likes`}
+          </span>
         </button>
+
         <button
           onClick={() => setShowComments(!showComments)}
-          className="flex items-center gap-1 hover:text-blue-600"
+          className="flex items-center gap-1 hover:text-blue-600 text-gray-600"
         >
           <FiMessageCircle /> <span>{post.comments}</span>
         </button>
-        <button className="flex items-center gap-1 hover:text-blue-600">
+        <button className="flex items-center gap-1 hover:text-blue-600 text-gray-600">
           <FiShare2 /> <span>12</span>
         </button>
       </div>

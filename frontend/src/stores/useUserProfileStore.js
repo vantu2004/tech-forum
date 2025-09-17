@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import axiosInstance from "../lib/axios";
 
-export const useUserProfile = create((set) => ({
+export const useUserProfileStore = create((set) => ({
   userProfile: null,
   isLoading: false,
 

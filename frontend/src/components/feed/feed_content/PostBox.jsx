@@ -1,10 +1,10 @@
 import { FiVideo, FiImage, FiFileText } from "react-icons/fi";
-import { useUserProfile } from "../../../stores/useUserProfile";
+import { useUserProfileStore } from "../../../stores/useUserProfileStore";
 import { useEffect } from "react";
 import { FaCircleUser } from "react-icons/fa6";
 
 const PostBox = ({ onOpenPostModal }) => {
-  const { userProfile, fetchUserProfile } = useUserProfile();
+  const { userProfile, fetchUserProfile } = useUserProfileStore();
 
   useEffect(() => {
     fetchUserProfile();

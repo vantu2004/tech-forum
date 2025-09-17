@@ -33,7 +33,7 @@ app.use("/api/users/profile", userProfileRoutes);
 app.use("/api/users/friends", userFriendshipRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use("/api/comment", commentRoutes);
+app.use("/api/comments", commentRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
 

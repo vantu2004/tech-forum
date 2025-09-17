@@ -1,123 +1,244 @@
+import Post from "../models/post.model.js";
 import Comment from "../models/comment.model.js";
 import UserProfile from "../models/userProfile.model.js";
-import Post from "../models/post.model.js";
 import Notification from "../models/notification.model.js";
+import cloudinary from "../lib/cloudinary.js";
 
-export const createComment = async (req, res) => {
-  try {
-    const { postId, content, parentId } = req.body;
+/* =========================
+ * Helpers
+ * ========================= */
+async function getPostOr404(postId, res) {
+  const post = await Post.findById(postId).select("_id userId");
+  if (!post) {
+    res.status(404).json({ success: false, error: "Post not found" });
+    return null;
+  }
+  return post;
+}
 
-    // 1) Kiểm tra post tồn tại
-    const post = await Post.findById(postId).select("_id userId comments");
-    if (!post) {
-      return res.status(404).json({ success: false, error: "Post not found" });
-    }
-
-    // 2) Nếu có parentId thì kiểm tra parent comment
-    let parentComment = null;
-    // Trường hợp parentId != null <=> comment ko phải bậc 1 -> phải tìm comment cha trong db
-    if (parentId) {
-      parentComment = await Comment.findById(parentId).select(
-        "_id postId userId"
-      );
-      if (!parentComment) {
-        return res
-          .status(400)
-          .json({ success: false, error: "Parent comment not found" });
-      }
-      // giả sử A comment bài 1 nhưng lại truyền ID bài 2 -> lỗi
-      if (String(parentComment.postId) !== String(post._id)) {
-        return res.status(400).json({
-          success: false,
-          error: "Parent comment does not belong to this post",
-        });
-      }
-    }
-
-    // 3) Tăng bộ đếm comment cho Post
-    post.comments += 1;
-    await post.save();
-
-    // 4) Tạo comment mới
-    const newComment = new Comment({
-      postId,
-      userId: req.userId,
-      content,
-      parentId: parentId || null,
+async function getParentCommentOr400(parentId, postId, res) {
+  if (!parentId) return null;
+  const parent = await Comment.findById(parentId).select("_id postId userId");
+  if (!parent) {
+    res.status(400).json({ success: false, error: "Parent comment not found" });
+    return null;
+  }
+  if (String(parent.postId) !== String(postId)) {
+    res.status(400).json({
+      success: false,
+      error: "Parent comment does not belong to this post",
     });
-    const savedComment = await newComment.save();
+    return null;
+  }
+  return parent;
+}
 
-    // 5) Lấy tên người gửi để hiển thị thông báo
-    const sender = await UserProfile.findOne({ userId: req.userId }).select(
-      "name"
-    );
-    const senderName = sender?.name || "Người dùng";
+function approxBase64Bytes(b64) {
+  // chấp nhận chuỗi có hoặc không có prefix data:mime;base64,
+  const data = b64.includes("base64,") ? b64.split("base64,")[1] : b64;
+  const len = data.length;
+  const padding = data.endsWith("==") ? 2 : data.endsWith("=") ? 1 : 0;
+  return Math.floor((len * 3) / 4) - padding;
+}
 
-    // 6) Gửi thông báo
-    const receivers = new Map();
-    const senderIdStr = String(req.userId);
-    const postOwnerId = String(post.userId);
+async function uploadBase64ImageToCloudinary(imageBase64, folder = "comments") {
+  // Validate nhanh kích thước ~5MB
+  const bytes = approxBase64Bytes(imageBase64);
+  const FIVE_MB = 5 * 1024 * 1024;
+  if (bytes > FIVE_MB) {
+    const err = new Error("Image too large (>5MB)");
+    err.status = 400;
+    throw err;
+  }
 
-    // Bình luận cấp 1 → chỉ báo cho chủ post
-    if (!parentId) {
-      // tránh trường hợp người comment là chủ post
-      if (postOwnerId !== senderIdStr) {
-        receivers.set(postOwnerId, {
-          receiverId: post.userId,
-          content: `${senderName} commented on your post`,
-          type: "COMMENT",
-        });
-      }
+  // Nếu không có prefix thì mặc định coi là jpeg
+  const hasPrefix = imageBase64.startsWith("data:image/");
+  const payload = hasPrefix
+    ? imageBase64.trim()
+    : `data:image/jpeg;base64,${imageBase64.trim()}`;
+
+  const result = await cloudinary.uploader.upload(payload, {
+    folder,
+    resource_type: "image",
+    // auto optimize
+    transformation: [{ quality: "auto:good", fetch_format: "auto" }],
+  });
+
+  return {
+    url: result.secure_url,
+    publicId: result.public_id,
+    width: result.width,
+    height: result.height,
+    bytes: result.bytes,
+    format: result.format,
+  };
+}
+
+async function getSenderName(userId) {
+  const sender = await UserProfile.findOne({ userId }).select("name");
+  return sender?.name || "Người dùng";
+}
+
+function buildReceivers({
+  isReply,
+  senderId,
+  postOwnerId,
+  parentOwnerId,
+  senderName,
+}) {
+  const receivers = new Map();
+  const senderStr = String(senderId);
+  const postOwnerStr = String(postOwnerId);
+  const parentOwnerStr = parentOwnerId ? String(parentOwnerId) : null;
+
+  if (!isReply) {
+    if (postOwnerStr !== senderStr) {
+      receivers.set(postOwnerStr, {
+        receiverId: postOwnerId,
+        content: `${senderName} commented on your post`,
+        type: "COMMENT",
+      });
     }
-    // Bình luận > cấp 1
-    else {
-      const parentOwnerId = String(parentComment.userId);
-
-      // tránh trường hợp người comment là chủ post
-      if (postOwnerId !== senderIdStr) {
-        receivers.set(postOwnerId, {
-          receiverId: post.userId,
-          content: `${senderName} replied in your post`,
-          type: "REPLY",
-        });
-      }
-
-      // tránh tường hợp người rep là người đã comment trước đó
-      if (parentOwnerId !== senderIdStr) {
-        receivers.set(parentOwnerId, {
-          receiverId: parentComment.userId,
-          content: `${senderName} replied to your comment`,
-          type: "REPLY",
-        });
-      }
+  } else {
+    if (postOwnerStr !== senderStr) {
+      receivers.set(postOwnerStr, {
+        receiverId: postOwnerId,
+        content: `${senderName} replied in your post`,
+        type: "REPLY",
+      });
     }
+    if (parentOwnerStr && parentOwnerStr !== senderStr) {
+      receivers.set(parentOwnerStr, {
+        receiverId: parentOwnerId,
+        content: `${senderName} replied to your comment`,
+        type: "REPLY",
+      });
+    }
+  }
 
-    // 7) Lưu các thông báo
-    const notifications = Array.from(receivers.values()).map((n) =>
+  return Array.from(receivers.values());
+}
+
+async function createNotifications({
+  senderId,
+  notificationsPayload,
+  commonId,
+}) {
+  if (!notificationsPayload.length) return;
+  await Promise.all(
+    notificationsPayload.map((n) =>
       new Notification({
-        senderId: req.userId,
+        senderId,
         receiverId: n.receiverId,
         content: n.content,
         type: n.type,
-        commonId: savedComment._id,
+        commonId, // commentId
       }).save()
-    );
-    if (notifications.length > 0) {
-      await Promise.all(notifications);
+    )
+  );
+}
+
+/* =========================
+ * Controller
+ * ========================= */
+export const createComment = async (req, res) => {
+  try {
+    const { postId, text = "", image, parentId } = req.body;
+    const userId = req.userId;
+
+    // Input validation: cần ít nhất text hoặc image
+    const hasText = typeof text === "string" && text.trim().length > 0;
+    const hasImage = typeof image === "string" && image.trim().length > 0;
+    if (!hasText && !hasImage) {
+      return res.status(400).json({
+        success: false,
+        error: "Either text or image is required",
+      });
     }
 
-    // 8) Trả về
-    res.status(201).json({ success: true, comment: savedComment });
+    // 1) Kiểm tra post & parent
+    const post = await getPostOr404(postId, res);
+    if (!post) return;
+
+    const parentComment = await getParentCommentOr400(parentId, postId, res);
+    // nghĩa là parentId thì có nhưng tìm trong db thì ko -> lỗi
+    if (parentId && !parentComment) return;
+
+    // 2) Nếu có ảnh → upload Cloudinary
+    let imageUrl = null;
+    if (hasImage) {
+      try {
+        const imageObj = await uploadBase64ImageToCloudinary(image, "comments");
+        imageUrl = imageObj?.url || null; // ✅ an toàn
+      } catch (e) {
+        const status = e.status || 500;
+        return res
+          .status(status)
+          .json({ success: false, error: e.message || "Upload failed" });
+      }
+    }
+
+    // 3) Tạo comment
+    const newComment = new Comment({
+      postId,
+      userId,
+      text: hasText ? text.trim() : "",
+      image: imageUrl, // ✅ giờ chỉ truyền string/null
+      parentId: parentId || null,
+    });
+
+    const savedComment = await newComment.save();
+
+    // 4) Tăng bộ đếm comment cho Post (sau khi tạo thành công để tránh lệch)
+    await Post.findByIdAndUpdate(post._id, { $inc: { comments: 1 } }).lean();
+
+    // 5) Gửi thông báo
+    const senderName = await getSenderName(userId);
+    const notificationsPayload = buildReceivers({
+      isReply: !!parentId,
+      senderId: userId,
+      postOwnerId: post.userId,
+      parentOwnerId: parentComment?.userId,
+      senderName,
+    });
+    await createNotifications({
+      senderId: userId,
+      notificationsPayload,
+      commonId: savedComment._id,
+    });
+
+    // 6) (tuỳ chọn) populate nhẹ để FE hiển thị
+    const populated = await Comment.findById(savedComment._id)
+      .populate({
+        path: "userId",
+        select: "email profile",
+        populate: { path: "profile", select: "name headline profile_pic" },
+      })
+      .lean();
+
+    return res.status(201).json({
+      success: true,
+      comment: populated,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal server error" });
   }
 };
 
 export const getAllComments = async (req, res) => {
   try {
     const { postId } = req.params;
-    const comments = await Comment.find({ postId }).sort({ createdAt: -1 });
+    const comments = await Comment.find({ postId })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "userId",
+        select: "email profile",
+        populate: { path: "profile", select: "name headline profile_pic" },
+      })
+      .lean();
 
     res.status(200).json({ success: true, comments });
   } catch (error) {

@@ -4,11 +4,11 @@ import { FaHome, FaUserFriends, FaBriefcase, FaBell } from "react-icons/fa";
 import { FaCircleUser } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/navbar/logo.png";
-import { useUserProfile } from "../../stores/useUserProfile";
+import { useUserProfileStore } from "../../stores/useUserProfileStore";
 
 const Navbar_v2 = () => {
   const [open, setOpen] = useState(false);
-  const { userProfile, fetchUserProfile } = useUserProfile();
+  const { userProfile, fetchUserProfile } = useUserProfileStore();
 
   useEffect(() => {
     fetchUserProfile();

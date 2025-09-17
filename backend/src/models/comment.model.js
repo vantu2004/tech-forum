@@ -12,8 +12,14 @@ const commentSchema = new mongoose.Schema(
       ref: "UserAuth",
       required: true,
     },
-    content: { type: String, required: true },
-
+    text: { type: String, required: null },
+    image: { type: String, default: null },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserAuth",
+      },
+    ],
     // Nếu là reply thì lưu id comment cha
     parentId: {
       type: mongoose.Schema.Types.ObjectId,

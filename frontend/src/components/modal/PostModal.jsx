@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { FiImage, FiX } from "react-icons/fi";
 import Modal from "./Modal.jsx";
-import { useUserProfile } from "../../stores/useUserProfile";
+import { useUserProfileStore } from "../../stores/useUserProfileStore";
 import { FaCircleUser } from "react-icons/fa6";
 import { usePostStore } from "../../stores/usePostStore";
 import { toast } from "react-hot-toast";
@@ -13,7 +13,7 @@ const MAX_FILE_MB = 5;
 const PostModal = ({ onClose }) => {
   const [desc, setDesc] = useState("");
   const [images, setImages] = useState([]); // mảng base64
-  const { userProfile } = useUserProfile();
+  const { userProfile } = useUserProfileStore();
   const { isLoading, createPost } = usePostStore();
 
   const fileToBase64 = (file) =>

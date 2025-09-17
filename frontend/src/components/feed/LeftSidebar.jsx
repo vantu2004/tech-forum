@@ -1,9 +1,9 @@
 import ProfileInfoCard from "../common/ProfileInfoCard";
-import { useUserProfile } from "../../stores/useUserProfile";
+import { useUserProfileStore } from "../../stores/useUserProfileStore";
 import { useEffect } from "react";
 
 const LeftSidebar = () => {
-  const { userProfile, fetchUserProfile, isLoading } = useUserProfile();
+  const { userProfile, fetchUserProfile, isLoading } = useUserProfileStore();
 
   useEffect(() => {
     fetchUserProfile();

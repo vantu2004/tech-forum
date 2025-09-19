@@ -1,4 +1,8 @@
 import { FaCircleUser } from "react-icons/fa6";
+import { useState, useMemo, useEffect } from "react";
+import { useUserAuthStore } from "../../../../stores/useUserAuthStore";
+import { useCommentStore } from "../../../../stores/useCommentStore";
+import CommentInput from "./CommentInput";
 
 const INDENT_PX = 24; // khoảng thụt mỗi cấp
 
@@ -6,6 +10,45 @@ const PostCommentItem = ({ comment, depth = 0, parentName = null }) => {
   const profile = comment?.userId?.profile || {};
   const avatar = profile?.profile_pic;
   const name = profile?.name || "User";
+
+  const { userAuth } = useUserAuthStore();
+  const { likeDislikeComment } = useCommentStore();
+
+  // user hiện tại đã like chưa?
+  const isLikedComputed = useMemo(() => {
+    const likes = comment?.likes ?? [];
+    const uid = userAuth?._id;
+    if (!uid) return false;
+    return likes.some((like) => String(like?._id ?? like) === String(uid));
+  }, [comment?.likes, userAuth?._id]);
+
+  // Local UI state (optimistic)
+  const [isLiked, setIsLiked] = useState(isLikedComputed);
+  const [likeCount, setLikeCount] = useState(comment?.likes?.length || 0);
+
+  // Đồng bộ lại khi props thay đổi (ví dụ sau khi phân trang/refresh)
+  useEffect(() => {
+    setIsLiked(isLikedComputed);
+    setLikeCount(comment?.likes?.length || 0);
+  }, [isLikedComputed, comment?.likes?.length]);
+
+  const handleToggleLike = async () => {
+    // Optimistic UI
+    setIsLiked((prev) => !prev);
+    setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
+    try {
+      await likeDislikeComment(comment._id);
+    } catch (err) {
+      // rollback nếu lỗi
+      setIsLiked(isLikedComputed);
+      setLikeCount(comment?.likes?.length || 0);
+      console.error(err);
+    }
+  };
+
+  // Reply box
+  const [showReply, setShowReply] = useState(false);
+  const toggleReply = () => setShowReply((s) => !s);
 
   return (
     <div
@@ -32,7 +75,7 @@ const PostCommentItem = ({ comment, depth = 0, parentName = null }) => {
           <FaCircleUser className="w-9 h-9 rounded-full text-gray-400" />
         )}
 
-        {/* Bubble: giữ màu đồng nhất cho mọi cấp */}
+        {/* Bubble */}
         <div className="flex-1">
           <div className="rounded-xl px-3 py-2 bg-gray-100">
             <h4 className="text-sm font-semibold text-gray-800">{name}</h4>
@@ -57,33 +100,47 @@ const PostCommentItem = ({ comment, depth = 0, parentName = null }) => {
             )}
           </div>
 
-          <div className="flex gap-4 text-xs text-gray-500 mt-1">
-            <button type="button" className="hover:underline">
-              Like
+          {/* Actions */}
+          <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
+            <button
+              type="button"
+              onClick={handleToggleLike}
+              className={`hover:underline flex items-center gap-1 ${
+                isLiked ? "text-blue-600 font-medium" : ""
+              }`}
+            >
+              {likeCount > 0 && <span>{likeCount}</span>}
+              {likeCount <= 1 ? "Like" : "Likes"}
             </button>
-            <button type="button" className="hover:underline">
-              Reply
+
+            <button
+              type="button"
+              onClick={toggleReply}
+              className="hover:underline"
+            >
+              {showReply ? "Cancel" : "Reply"}
             </button>
+
             {comment?.createdAt && (
               <span>{new Date(comment.createdAt).toLocaleString()}</span>
             )}
           </div>
+
+          {/* Reply input box */}
+          {showReply && (
+            <div className="mt-2">
+              {/* 
+                Lưu ý: CommentInput hiện gọi createComment({ postId, text, image }).
+                Để lưu reply đúng, bạn nên thêm parentId vào createComment ở CommentInput.
+              */}
+              <CommentInput
+                post={{ _id: comment.postId }} // chỉ cần _id
+                parentId={comment._id} // truyền xuống để dùng trong createComment
+              />
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Children: GIỮ phân cấp thật sự (depth + 1) */}
-      {Array.isArray(comment.children) && comment.children.length > 0 && (
-        <div className="mt-2 space-y-2">
-          {comment.children.map((child, idx) => (
-            <PostCommentItem
-              key={String(child._id)}
-              comment={child}
-              depth={depth + 1} // 👈 tăng depth thật sự
-              parentName={name} // 👈 mention cha
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 };

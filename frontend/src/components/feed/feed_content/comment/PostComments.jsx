@@ -1,54 +1,78 @@
-import { useEffect, useMemo } from "react";
-import { useUserProfileStore } from "../../../../stores/useUserProfileStore";
+import { useEffect, useMemo, useState } from "react";
 import { useCommentStore } from "../../../../stores/useCommentStore";
 import PostCommentItem from "./PostCommentItem";
-import CommentInput from "./CommentInput";
 import CommentSortBar from "./CommentSortBar";
-import { buildCommentTree } from "../../../../utils/buildCommentTree";
 
 const PostComments = ({ show, onToggleShow, post }) => {
-  const { userProfile } = useUserProfileStore();
-  const { isLoading, fetchComments, comments } = useCommentStore();
+  const { isLoading, getCommentsPaginated, commentsByPost, pagination } =
+    useCommentStore();
+
+  const comments = commentsByPost[post._id] || [];
+
+  const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState("time"); // mặc định sort theo time
+  const [sortOrder, setSortOrder] = useState("desc");
+  const limit = 5;
 
   useEffect(() => {
     if (!post?._id || !show) return;
-    fetchComments(post._id);
-  }, [show, fetchComments, post?._id]);
+    setPage(1);
+    getCommentsPaginated(post._id, 1, limit, null);
+  }, [show, getCommentsPaginated, post?._id]);
 
-  const commentTree = useMemo(
-    () => buildCommentTree(comments ?? []),
-    [comments]
-  );
+  // sort tập comments theo sortBy + sortOrder
+  const sortedComments = useMemo(() => {
+    if (!comments) return [];
+    const arr = [...comments];
+    if (sortBy === "time") {
+      arr.sort((a, b) =>
+        sortOrder === "asc"
+          ? new Date(a.createdAt) - new Date(b.createdAt)
+          : new Date(b.createdAt) - new Date(a.createdAt)
+      );
+    } else if (sortBy === "likes") {
+      arr.sort((a, b) =>
+        sortOrder === "asc"
+          ? a.likes.length - b.likes.length
+          : b.likes.length - a.likes.length
+      );
+    }
+    return arr;
+  }, [comments, sortBy, sortOrder]);
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    getCommentsPaginated(post._id, nextPage, limit, null);
+  };
 
   return (
     <div className="mt-3">
-      <CommentInput post={post} userProfile={userProfile} />
-      <CommentSortBar
-        isLoading={isLoading}
-        onToggleShow={onToggleShow}
-        show={show}
-      />
-
       {show && (
         <div className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {isLoading && (
-            <div className="flex items-center gap-2 text-gray-500 mb-2">
-              <span className="loading loading-spinner loading-sm" />
-              <span className="text-sm">Loading comments...</span>
-            </div>
-          )}
+          {/* Sort Bar */}
+          <CommentSortBar
+            isLoading={isLoading}
+            onToggleShow={onToggleShow}
+            show={show}
+            onSortChange={(by, order) => {
+              setSortBy(by);
+              setSortOrder(order);
+            }}
+          />
 
           <div className="space-y-4">
-            {commentTree.map((c) => (
+            {sortedComments.map((c) => (
               <PostCommentItem key={String(c._id)} comment={c} depth={0} />
             ))}
           </div>
 
-          {Array.isArray(comments) && comments.length > 5 && (
+          {pagination?.hasMore && (
             <button
               type="button"
               className="flex items-center gap-2 text-sm text-gray-600 hover:underline mt-4 disabled:opacity-50"
               disabled={isLoading}
+              onClick={handleLoadMore}
             >
               ↩ Load more comments
             </button>

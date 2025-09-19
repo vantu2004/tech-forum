@@ -1,22 +1,27 @@
 import { useState } from "react";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 
-const CommentSortBar = ({ isLoading, onToggleShow, show }) => {
-  const [sortBy, setSortBy] = useState("time"); // 'time' | 'likes'
+const CommentSortBar = ({ isLoading, onToggleShow, show, onSortChange }) => {
+  const [sortBy, setSortBy] = useState("time");
   const [sortOrder, setSortOrder] = useState("desc");
   const [openSortMenu, setOpenSortMenu] = useState(false);
 
-  const toggleSortOrder = () =>
-    setSortOrder((o) => (o === "asc" ? "desc" : "asc"));
+  const toggleSortOrder = () => {
+    const newOrder = sortOrder === "asc" ? "desc" : "asc";
+    setSortOrder(newOrder);
+    onSortChange?.(sortBy, newOrder); // báo ngược lên cha
+  };
 
   const chooseSortBy = (key) => {
     setSortBy(key);
-    setOpenSortMenu(false);
     setSortOrder("desc");
+    setOpenSortMenu(false);
+    onSortChange?.(key, "desc");
   };
 
   return (
     <div className="flex items-center justify-between mb-3">
+      {/* UI giữ nguyên */}
       <div className="relative">
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <button

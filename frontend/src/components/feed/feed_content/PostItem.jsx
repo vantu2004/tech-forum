@@ -6,6 +6,8 @@ import MediaGrid from "../../common/MediaGrid.jsx";
 import { usePostStore } from "../../../stores/usePostStore";
 import { useUserAuthStore } from "../../../stores/useUserAuthStore.js";
 import PostComments from "./comment/PostComments";
+import { useUserProfileStore } from "../../../stores/useUserProfileStore";
+import CommentInput from "./comment/CommentInput";
 
 const PostItem = ({ post, onOpenImageViewer }) => {
   const [expanded, setExpanded] = useState(false);
@@ -13,6 +15,7 @@ const PostItem = ({ post, onOpenImageViewer }) => {
 
   const { userAuth } = useUserAuthStore();
   const { likePost } = usePostStore();
+  const { userProfile } = useUserProfileStore();
 
   // Tính đúng isLiked cho mọi kiểu likes (ObjectId hoặc object đã populate)
   const isLikedComputed = useMemo(() => {
@@ -127,6 +130,8 @@ const PostItem = ({ post, onOpenImageViewer }) => {
           <FiShare2 /> <span>12</span>
         </button>
       </div>
+
+      <CommentInput post={post} userProfile={userProfile} />
 
       {/* Comments (đã tách file) */}
       <PostComments

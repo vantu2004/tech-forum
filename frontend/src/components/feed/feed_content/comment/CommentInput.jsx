@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { FiImage, FiSend, FiX } from "react-icons/fi";
 import { useCommentStore } from "../../../../stores/useCommentStore";
+import { FaCircleUser } from "react-icons/fa6";
+import { useUserProfileStore } from "../../../../stores/useUserProfileStore";
 
-const CommentInput = ({ post, userProfile }) => {
-  const { isLoading, createComment, fetchComments } = useCommentStore();
+const CommentInput = ({ post, parentId = null }) => {
+  const { userProfile } = useUserProfileStore();
+  const { isLoading, createComment } = useCommentStore();
 
   const [text, setText] = useState("");
   const [imageFile, setImageFile] = useState(null); // base64
@@ -27,10 +30,10 @@ const CommentInput = ({ post, userProfile }) => {
         postId: post._id,
         text: text.trim(),
         image: imageFile,
+        parentId,
       });
       setText("");
       clearImage();
-      await fetchComments(post._id);
     } catch (e) {
       console.error(e);
     }
@@ -38,12 +41,16 @@ const CommentInput = ({ post, userProfile }) => {
 
   return (
     <>
-      <div className="flex items-center gap-2 mb-4 text-gray-500">
-        <img
-          src={userProfile?.profile_pic}
-          alt="me"
-          className="w-9 h-9 rounded-full object-cover"
-        />
+      <div className="flex items-center gap-2 mt-2 mb-4 text-gray-500">
+        {userProfile?.profile_pic ? (
+          <img
+            src={userProfile?.profile_pic}
+            alt="me"
+            className="w-9 h-9 rounded-full object-cover"
+          />
+        ) : (
+          <FaCircleUser className="w-9 h-9 rounded-full text-gray-400" />
+        )}
 
         <div className="flex items-center flex-1 border border-gray-300 rounded-full px-3 py-2">
           <input

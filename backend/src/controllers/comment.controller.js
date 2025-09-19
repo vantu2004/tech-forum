@@ -3,6 +3,7 @@ import Comment from "../models/comment.model.js";
 import UserProfile from "../models/userProfile.model.js";
 import Notification from "../models/notification.model.js";
 import cloudinary from "../lib/cloudinary.js";
+import mongoose from "mongoose";
 
 /* =========================
  * Helpers
@@ -243,6 +244,99 @@ export const getAllComments = async (req, res) => {
     res.status(200).json({ success: true, comments });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+export const getCommentsPaginated = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    let { parentId, page = 1, limit = 5 } = req.query;
+
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 5;
+    const skip = (page - 1) * limit;
+
+    // Chuẩn hóa parentId
+    if (parentId === "null" || parentId === "" || parentId === undefined) {
+      parentId = null;
+    }
+
+    // Xây filter
+    const filter = { postId, parentId };
+
+    const [comments, totalComments] = await Promise.all([
+      Comment.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({
+          path: "userId",
+          select: "email profile",
+          populate: { path: "profile", select: "name headline profile_pic" },
+        })
+        .lean(),
+
+      // tính tổng bộ comment chứ ko phải tính tổng comment theo trang
+      Comment.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      comments,
+      pagination: {
+        page,
+        limit,
+        totalComments,
+        totalPages: Math.ceil(totalComments / limit),
+        hasMore: page * limit < totalComments,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+export const likeDislikeComment = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { commentId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid commentId" });
+    }
+
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Comment not found" });
+    }
+
+    let updatedComment;
+
+    if (comment.likes.includes(userId)) {
+      // Nếu user đã like thì bỏ like
+      updatedComment = await Comment.findByIdAndUpdate(
+        commentId,
+        { $pull: { likes: userId } },
+        { new: true }
+      );
+    } else {
+      // Nếu chưa like thì thêm like
+      updatedComment = await Comment.findByIdAndUpdate(
+        commentId,
+        { $addToSet: { likes: userId } }, // tránh trùng
+        { new: true }
+      );
+    }
+
+    return res.status(200).json({ success: true, comment: updatedComment });
+  } catch (error) {
+    console.error("likeDislikeComment error:", error);
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };

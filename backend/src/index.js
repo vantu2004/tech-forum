@@ -11,6 +11,7 @@ import userFriendshipRoutes from "./routes/userFriendship.route.js";
 import conversationRoutes from "./routes/conversation.route.js";
 import messageRoutes from "./routes/message.route.js";
 import cors from "cors";
+import userSkillRoutes from "./routes/userSkill.route.js";
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use(
 app.use("/api/users", userAuthRoutes);
 app.use("/api/users/profile", userProfileRoutes);
 app.use("/api/users/friends", userFriendshipRoutes);
+app.use("/api/users/skills", userSkillRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/comments", commentRoutes);

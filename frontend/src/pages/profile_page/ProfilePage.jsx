@@ -10,14 +10,17 @@ import SuggestionCard from "../../components/common/SuggestionCard.jsx";
 import PostedModal from "../../components/modal/PostedModal.jsx";
 import { useEffect } from "react";
 import { useUserProfileStore } from "../../stores/useUserProfileStore";
+import { useUserSkillStore } from "../../stores/useUserSkillStore";
 
 const ProfilePage = () => {
   const { id } = useParams();
   const { userProfile, fetchUserProfile } = useUserProfileStore();
+  const { userSkills, fetchUserSkills } = useUserSkillStore();
 
   useEffect(() => {
     fetchUserProfile();
-  }, [fetchUserProfile]);
+    fetchUserSkills();
+  }, [fetchUserProfile, fetchUserSkills]);
 
   const [openInfomationModal, setOpenInfomationModal] = useState(false);
   const [openMessageModal, setOpenMessageModal] = useState(false);
@@ -79,7 +82,9 @@ const ProfilePage = () => {
         <AboutModal onClose={handleOpenAboutModal} userProfile={userProfile} />
       )}
 
-      {openSkillModal && <SkillModal onClose={handleOpenSkillModal} />}
+      {openSkillModal && (
+        <SkillModal onClose={handleOpenSkillModal} userSkills={userSkills} />
+      )}
 
       {openExperienceModal && (
         <ExperienceModal onClose={handleOpenExperienceModal} />

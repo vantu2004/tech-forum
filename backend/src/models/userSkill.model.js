@@ -6,8 +6,12 @@ const userSkillSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "UserAuth",
       required: true,
+      unique: true, // mỗi user chỉ có 1 document
     },
-    name: { type: String, required: true },
+    skills: {
+      type: [String], // mảng string
+      default: [],
+    },
   },
   { timestamps: true }
 );

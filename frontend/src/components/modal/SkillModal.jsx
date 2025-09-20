@@ -1,11 +1,17 @@
-// src/components/common/SkillModal.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Modal from "./Modal";
 import { FiX } from "react-icons/fi";
+import { useUserSkillStore } from "../../stores/useUserSkillStore";
 
-const SkillModal = ({ onClose, initialSkills = [] }) => {
-  const [skills, setSkills] = useState(initialSkills);
+const SkillModal = ({ onClose, userSkills = [] }) => {
+  const [skills, setSkills] = useState(userSkills);
   const [input, setInput] = useState("");
+  const { updateUserSkills, isLoading } = useUserSkillStore();
+
+  // đồng bộ khi mở modal
+  useEffect(() => {
+    setSkills(userSkills);
+  }, [userSkills]);
 
   const handleAdd = () => {
     if (input.trim() !== "" && !skills.includes(input.trim())) {
@@ -18,9 +24,14 @@ const SkillModal = ({ onClose, initialSkills = [] }) => {
     setSkills(skills.filter((s) => s !== skill));
   };
 
-  const handleSave = () => {
-    console.log("Skills submitted:", skills);
-    onClose();
+  const handleSave = async () => {
+    try {
+      await updateUserSkills(skills);
+    } catch (err) {
+      console.error("Update failed:", err.message);
+    } finally {
+      onClose();
+    }
   };
 
   return (
@@ -72,9 +83,10 @@ const SkillModal = ({ onClose, initialSkills = [] }) => {
         </button>
         <button
           onClick={handleSave}
-          className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+          disabled={isLoading}
+          className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-50"
         >
-          Save
+          {isLoading ? "Saving..." : "Save"}
         </button>
       </div>
     </Modal>

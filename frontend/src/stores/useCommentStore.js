@@ -2,10 +2,9 @@ import { create } from "zustand";
 import axiosInstance from "../lib/axios";
 
 export const useCommentStore = create((set) => ({
-  comments: [],
-  isLoading: false,
-
   commentsByPost: {}, // { [postId]: [comments...] }
+  loadingByPost: {}, // { [postId]: true/false }
+  paginationByPost: {}, // { [postId]: {...} }
 
   getCommentsPaginated: async (
     postId,
@@ -13,7 +12,10 @@ export const useCommentStore = create((set) => ({
     limit = 5,
     parentId = null
   ) => {
-    set({ isLoading: true });
+    // set loading cho post cụ thể
+    set((state) => ({
+      loadingByPost: { ...state.loadingByPost, [postId]: true },
+    }));
     try {
       const { data } = await axiosInstance.get(
         `/comments/pagination/${postId}`,
@@ -30,15 +32,23 @@ export const useCommentStore = create((set) => ({
               ? data.comments
               : [...(state.commentsByPost[postId] || []), ...data.comments],
         },
-        pagination: data.pagination,
+        paginationByPost: {
+          ...state.paginationByPost,
+          [postId]: data.pagination,
+        },
       }));
     } finally {
-      set({ isLoading: false });
+      // clear loading cho post cụ thể
+      set((state) => ({
+        loadingByPost: { ...state.loadingByPost, [postId]: false },
+      }));
     }
   },
 
   createComment: async ({ postId, text, image, parentId }) => {
-    set({ isLoading: true });
+    set((state) => ({
+      loadingByPost: { ...state.loadingByPost, [postId]: true },
+    }));
     try {
       const { data } = await axiosInstance.post("/comments", {
         postId,
@@ -54,7 +64,9 @@ export const useCommentStore = create((set) => ({
         },
       }));
     } finally {
-      set({ isLoading: false });
+      set((state) => ({
+        loadingByPost: { ...state.loadingByPost, [postId]: false },
+      }));
     }
   },
 

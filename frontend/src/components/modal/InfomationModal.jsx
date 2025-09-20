@@ -1,12 +1,16 @@
 import Modal from "./Modal";
 import { useState } from "react";
+import { useUserProfileStore } from "../../stores/useUserProfileStore";
+import { toast } from "react-hot-toast";
 
-const InformationModal = ({ onClose, initialData = {} }) => {
+const InformationModal = ({ onClose, userProfile = {} }) => {
+  const { updateProfile } = useUserProfileStore();
+
   const [form, setForm] = useState({
-    fullName: initialData.fullName || "",
-    headline: initialData.headline || "",
-    company: initialData.company || "",
-    location: initialData.location || "",
+    name: userProfile?.name || "",
+    headline: userProfile?.headline || "",
+    curr_company: userProfile?.curr_company || "",
+    curr_location: userProfile?.curr_location || "",
   });
 
   const handleChange = (e) => {
@@ -14,9 +18,24 @@ const InformationModal = ({ onClose, initialData = {} }) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
-    console.log("Data submitted:", form);
-    onClose();
+  const handleSave = async () => {
+    try {
+      if (!form.name) {
+        toast.error("Please enter your full name.");
+        return;
+      }
+
+      await updateProfile({
+        name: form.name,
+        headline: form.headline,
+        curr_company: form.curr_company,
+        curr_location: form.curr_location,
+      });
+    } catch (err) {
+      console.error("Update failed:", err.message);
+    } finally {
+      onClose();
+    }
   };
 
   return (
@@ -31,8 +50,8 @@ const InformationModal = ({ onClose, initialData = {} }) => {
           </label>
           <input
             type="text"
-            name="fullName"
-            value={form.fullName}
+            name="name"
+            value={form.name}
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             placeholder="Enter your full name"
@@ -61,8 +80,8 @@ const InformationModal = ({ onClose, initialData = {} }) => {
           </label>
           <input
             type="text"
-            name="company"
-            value={form.company}
+            name="curr_company"
+            value={form.curr_company}
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             placeholder="Enter current workplace or school"
@@ -76,8 +95,8 @@ const InformationModal = ({ onClose, initialData = {} }) => {
           </label>
           <input
             type="text"
-            name="location"
-            value={form.location}
+            name="curr_location"
+            value={form.curr_location}
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             placeholder="Enter your current location"

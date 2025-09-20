@@ -4,10 +4,16 @@ import PostCommentItem from "./PostCommentItem";
 import CommentSortBar from "./CommentSortBar";
 
 const PostComments = ({ show, onToggleShow, post }) => {
-  const { isLoading, getCommentsPaginated, commentsByPost, pagination } =
-    useCommentStore();
+  const {
+    loadingByPost,
+    getCommentsPaginated,
+    commentsByPost,
+    paginationByPost,
+  } = useCommentStore();
 
   const comments = commentsByPost[post._id] || [];
+  const isLoading = loadingByPost[post._id] || false;
+  const pagination = paginationByPost[post._id] || {};
 
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("time"); // mặc định sort theo time

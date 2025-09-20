@@ -1,6 +1,9 @@
 import { FiEdit } from "react-icons/fi";
+import { useUserProfileStore } from "../../stores/useUserProfileStore";
 
 const About = ({ onOpenAboutModal }) => {
+  const { userProfile } = useUserProfileStore();
+
   return (
     <div className="mt-6 space-y-4">
       <div className="bg-white rounded-lg shadow-sm p-4">
@@ -14,7 +17,7 @@ const About = ({ onOpenAboutModal }) => {
           </button>
         </div>
         <p className="text-gray-700">
-          Đây là nội dung bài viết mẫu. Bạn có thể thay thế bằng dữ liệu từ API.
+          {userProfile?.about || "Write something about yourself..."}
         </p>
       </div>
     </div>

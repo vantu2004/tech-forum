@@ -8,9 +8,16 @@ import MessageModal from "../../components/modal/MessageModel.jsx";
 import { useParams } from "react-router-dom";
 import SuggestionCard from "../../components/common/SuggestionCard.jsx";
 import PostedModal from "../../components/modal/PostedModal.jsx";
+import { useEffect } from "react";
+import { useUserProfileStore } from "../../stores/useUserProfileStore";
 
 const ProfilePage = () => {
   const { id } = useParams();
+  const { userProfile, fetchUserProfile } = useUserProfileStore();
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
   const [openInfomationModal, setOpenInfomationModal] = useState(false);
   const [openMessageModal, setOpenMessageModal] = useState(false);
@@ -62,10 +69,15 @@ const ProfilePage = () => {
 
       {/* modal ko nên đặt trong component */}
       {openInfomationModal && (
-        <InformationModal onClose={handleOpenInfomationModal} />
+        <InformationModal
+          onClose={handleOpenInfomationModal}
+          userProfile={userProfile}
+        />
       )}
 
-      {openAboutModal && <AboutModal onClose={handleOpenAboutModal} />}
+      {openAboutModal && (
+        <AboutModal onClose={handleOpenAboutModal} userProfile={userProfile} />
+      )}
 
       {openSkillModal && <SkillModal onClose={handleOpenSkillModal} />}
 

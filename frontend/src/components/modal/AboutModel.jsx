@@ -1,13 +1,21 @@
 // src/components/common/AboutModal.jsx
 import { useState } from "react";
 import Modal from "./Modal";
+import { useUserProfileStore } from "../../stores/useUserProfileStore";
 
-const AboutModal = ({ onClose, initialText = "" }) => {
-  const [about, setAbout] = useState(initialText);
+const AboutModal = ({ onClose, userProfile }) => {
+  const { updateProfile } = useUserProfileStore();
 
-  const handleSave = () => {
-    console.log("About submitted:", about);
-    onClose();
+  const [about, setAbout] = useState(userProfile?.about || "");
+
+  const handleSave = async () => {
+    try {
+      await updateProfile({ about });
+    } catch (err) {
+      console.error("Update failed:", err.message);
+    } finally {
+      onClose();
+    }
   };
 
   return (

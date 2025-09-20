@@ -1,6 +1,7 @@
 import UserProfile from "../models/userProfile.model.js";
 import mongoose from "mongoose";
 import UserAuth from "../models/userAuth.model.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const getUserProfile = async (req, res) => {
   try {
@@ -60,10 +61,30 @@ export const updateProfile = async (req, res) => {
       return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    // Lấy toàn bộ dữ liệu client gửi lên
-    const updateData = req.body;
+    let updateData = { ...req.body };
 
-    // Nếu không có field nào trong body
+    // Nếu client gửi base64 cho profile_pic
+    if (updateData.profile_pic && updateData.profile_pic.startsWith("data:")) {
+      const uploadResult = await cloudinary.uploader.upload(
+        updateData.profile_pic,
+        {
+          folder: "avatars",
+        }
+      );
+      updateData.profile_pic = uploadResult.secure_url; // chỉ lưu URL
+    }
+
+    // Nếu client gửi base64 cho cover_pic
+    if (updateData.cover_pic && updateData.cover_pic.startsWith("data:")) {
+      const uploadResult = await cloudinary.uploader.upload(
+        updateData.cover_pic,
+        {
+          folder: "covers",
+        }
+      );
+      updateData.cover_pic = uploadResult.secure_url; // chỉ lưu URL
+    }
+
     if (!updateData || Object.keys(updateData).length === 0) {
       return res
         .status(400)
@@ -72,7 +93,7 @@ export const updateProfile = async (req, res) => {
 
     const updatedProfile = await UserProfile.findOneAndUpdate(
       { userId },
-      { $set: updateData }, // update linh hoạt theo dữ liệu client gửi
+      { $set: updateData },
       { new: true, runValidators: true }
     );
 

@@ -32,4 +32,6 @@ export const useUserProfileStore = create((set) => ({
       set({ isLoading: false });
     }
   },
+
+  // call api backend upload cv 
 }));

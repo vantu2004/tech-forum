@@ -8,7 +8,7 @@ const ResumeContent = ({ cvUrl }) => {
         <div className="space-y-4">
           {/* Nhúng trực tiếp */}
           <iframe
-            src="https://res.cloudinary.com/dulzdd9w5/image/upload/v1755759025/Elegant_resume_template_tcfzwi.pdf"
+            src="https://res.cloudinary.com/dulzdd9w5/image/upload/v1755759025/Elegant_resume_template_tcfzwi.pdf" 
             title="Resume"
             className="w-full h-[500px] border rounded"
           ></iframe>

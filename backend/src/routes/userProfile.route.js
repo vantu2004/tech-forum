@@ -7,6 +7,9 @@ import {
 } from "../controllers/userProfile.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 
+
+//upload cv
+
 const router = express.Router();
 
 // lấy profile của bản thân
@@ -16,5 +19,6 @@ router.get("/search", verifyToken, getUserProfileByQuery);
 // lấy profile theo userId truyền dạng dữ liệu động trong URL
 router.get("/:userId", getUserProfileByUserId);
 router.put("/", verifyToken, updateProfile);
+
 
 export default router;

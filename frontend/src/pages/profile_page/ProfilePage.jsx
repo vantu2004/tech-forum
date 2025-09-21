@@ -11,16 +11,23 @@ import PostedModal from "../../components/modal/PostedModal.jsx";
 import { useEffect } from "react";
 import { useUserProfileStore } from "../../stores/useUserProfileStore";
 import { useUserSkillStore } from "../../stores/useUserSkillStore";
+import { useUserExperienceStore } from "../../stores/useUserExperienceStore";
 
 const ProfilePage = () => {
   const { id } = useParams();
   const { userProfile, fetchUserProfile } = useUserProfileStore();
   const { userSkills, fetchUserSkills } = useUserSkillStore();
+  const { fetchUserExperiences } = useUserExperienceStore();
 
+  // Fetch khi component mount
+  useEffect(() => {
+    fetchUserExperiences();
+  }, [fetchUserExperiences]);
   useEffect(() => {
     fetchUserProfile();
     fetchUserSkills();
-  }, [fetchUserProfile, fetchUserSkills]);
+    fetchUserExperiences();
+  }, [fetchUserProfile, fetchUserSkills, fetchUserExperiences]);
 
   const [openInfomationModal, setOpenInfomationModal] = useState(false);
   const [openMessageModal, setOpenMessageModal] = useState(false);
@@ -28,6 +35,8 @@ const ProfilePage = () => {
   const [openSkillModal, setOpenSkillModal] = useState(false);
   const [openExperienceModal, setOpenExperienceModal] = useState(false);
   const [openPostedModal, setOpenPostedModal] = useState(false);
+
+  const [selectedExperience, setSelectedExperience] = useState(null);
 
   const handleOpenInfomationModal = () => {
     setOpenInfomationModal(!openInfomationModal);
@@ -41,8 +50,14 @@ const ProfilePage = () => {
     setOpenSkillModal(!openSkillModal);
   };
 
-  const handleOpenExperienceModal = () => {
-    setOpenExperienceModal(!openExperienceModal);
+  const handleOpenExperienceModal = (exp = null) => {
+    setSelectedExperience(exp); // lưu exp khi mở
+    setOpenExperienceModal(true);
+  };
+
+  const handleCloseExperienceModal = () => {
+    setSelectedExperience(null); // reset khi đóng
+    setOpenExperienceModal(false);
   };
 
   const handleOpenMessageModal = () => {
@@ -87,7 +102,10 @@ const ProfilePage = () => {
       )}
 
       {openExperienceModal && (
-        <ExperienceModal onClose={handleOpenExperienceModal} />
+        <ExperienceModal
+          onClose={handleCloseExperienceModal}
+          experience={selectedExperience}
+        />
       )}
 
       {openMessageModal && <MessageModal onClose={handleOpenMessageModal} />}

@@ -2,7 +2,7 @@ import { FiEdit } from "react-icons/fi";
 import { useUserProfileStore } from "../../stores/useUserProfileStore";
 
 const About = ({ onOpenAboutModal }) => {
-  const { userProfile } = useUserProfileStore();
+  const { userProfile, isLoading } = useUserProfileStore();
 
   return (
     <div className="mt-6 space-y-4">
@@ -16,9 +16,15 @@ const About = ({ onOpenAboutModal }) => {
             <FiEdit className="text-gray-600" size={18} />
           </button>
         </div>
-        <p className="text-gray-700">
-          {userProfile?.about || "Write something about yourself..."}
-        </p>
+
+        {/* Loading */}
+        {isLoading ? (
+          <p className="text-gray-500 italic text-sm">Loading profile...</p>
+        ) : (
+          <p className="text-gray-700">
+            {userProfile?.about || "Write something about yourself..."}
+          </p>
+        )}
       </div>
     </div>
   );

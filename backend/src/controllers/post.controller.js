@@ -163,15 +163,22 @@ export const getPostById = async (req, res) => {
 
 export const getPostsByUser = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const { limit = 0, skip = 0 } = req.query;
-
+    const userId = req.userId;
     const posts = await Post.find({ userId })
       .sort({ createdAt: -1 })
-      .skip(Number(skip))
-      .limit(Number(limit));
-
-    res.json({ success: true, posts });
+      .populate({
+        path: "userId",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          select: "name headline profile_pic",
+        },
+      })
+      .lean();
+    res.status(200).json({
+      success: true,
+      posts,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({

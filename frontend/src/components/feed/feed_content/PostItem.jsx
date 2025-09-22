@@ -8,9 +8,9 @@ import { useUserAuthStore } from "../../../stores/useUserAuthStore.js";
 import PostComments from "./comment/PostComments";
 import { useUserProfileStore } from "../../../stores/useUserProfileStore";
 import CommentInput from "./comment/CommentInput";
+import ShowMoreText from "../../common/ShowMoreText.jsx";
 
 const PostItem = ({ post, onOpenImageViewer }) => {
-  const [expanded, setExpanded] = useState(false);
   const [showComments, setShowComments] = useState(false);
 
   const { userAuth } = useUserAuthStore();
@@ -28,22 +28,14 @@ const PostItem = ({ post, onOpenImageViewer }) => {
   const [isLiked, setIsLiked] = useState(isLikedComputed);
   const [likeCount, setLikeCount] = useState(post.likes.length);
 
-  // Đồng bộ lại nếu props thay đổi (trường hợp store cập nhật post)
+  // Đồng bộ lại nếu props thay đổi
   useMemo(() => {
     setIsLiked(isLikedComputed);
     setLikeCount(post.likes.length);
   }, [isLikedComputed, post.likes.length]);
 
-  const text = post.desc || "";
-  const maxWords = 20;
-  const words = text.split(" ");
-  const showSeeMore = words.length > maxWords;
-  const displayText = expanded
-    ? text
-    : words.slice(0, maxWords).join(" ") + (showSeeMore ? "..." : "");
-
   const userName = post?.userId?.profile?.name ?? "Unknown";
-  const userHeadline = post?.userId?.profile?.headline ?? ""; // fix typo: headline
+  const userHeadline = post?.userId?.profile?.headline ?? "";
   const userAvatar = post?.userId?.profile?.profile_pic;
 
   const handleToggleLike = async () => {
@@ -53,7 +45,6 @@ const PostItem = ({ post, onOpenImageViewer }) => {
 
     try {
       await likePost(post._id);
-      // store nên replace post theo _id → UI vẫn giữ state, không remount
     } catch (err) {
       // rollback
       setIsLiked(isLikedComputed);
@@ -81,18 +72,7 @@ const PostItem = ({ post, onOpenImageViewer }) => {
       </div>
 
       {/* Nội dung */}
-      <p className="text-sm text-gray-700 mb-2">
-        {displayText}{" "}
-        {showSeeMore && (
-          <button
-            type="button"
-            onClick={() => setExpanded(!expanded)}
-            className="text-blue-600 font-medium text-xs hover:underline"
-          >
-            {expanded ? "See less" : "See more"}
-          </button>
-        )}
-      </p>
+      <ShowMoreText text={post.desc || ""} maxWords={20} />
 
       {/* Media */}
       <MediaGrid
@@ -133,7 +113,7 @@ const PostItem = ({ post, onOpenImageViewer }) => {
 
       <CommentInput post={post} userProfile={userProfile} />
 
-      {/* Comments (đã tách file) */}
+      {/* Comments */}
       <PostComments
         show={showComments}
         onToggleShow={() => setShowComments((s) => !s)}

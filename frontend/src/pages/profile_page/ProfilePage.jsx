@@ -12,22 +12,21 @@ import { useEffect } from "react";
 import { useUserProfileStore } from "../../stores/useUserProfileStore";
 import { useUserSkillStore } from "../../stores/useUserSkillStore";
 import { useUserExperienceStore } from "../../stores/useUserExperienceStore";
+import { usePostStore } from "../../stores/usePostStore";
 
 const ProfilePage = () => {
   const { id } = useParams();
   const { userProfile, fetchUserProfile } = useUserProfileStore();
   const { userSkills, fetchUserSkills } = useUserSkillStore();
   const { fetchUserExperiences } = useUserExperienceStore();
+  const { getPostsByUser } = usePostStore();
 
-  // Fetch khi component mount
   useEffect(() => {
     fetchUserExperiences();
-  }, [fetchUserExperiences]);
-  useEffect(() => {
     fetchUserProfile();
     fetchUserSkills();
-    fetchUserExperiences();
-  }, [fetchUserProfile, fetchUserSkills, fetchUserExperiences]);
+    getPostsByUser();
+  }, [fetchUserExperiences, fetchUserProfile, fetchUserSkills, getPostsByUser]);
 
   const [openInfomationModal, setOpenInfomationModal] = useState(false);
   const [openMessageModal, setOpenMessageModal] = useState(false);

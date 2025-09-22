@@ -52,4 +52,19 @@ export const usePostStore = create((set) => ({
       console.error("Error liking post", error);
     }
   },
+
+  getPostsByUser: async () => {
+    set({ isLoading: true });
+    try {
+      const { data } = await axiosInstance.get("/posts/owner");
+      set({ posts: data.posts });
+    } catch (error) {
+      set({ posts: [] });
+      throw new Error(
+        error.response?.data?.error || "Error fetching user's posts"
+      );
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 }));

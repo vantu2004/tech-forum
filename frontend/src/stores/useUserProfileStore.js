@@ -51,7 +51,7 @@ export const useUserProfileStore = create((set) => ({
       set((state) => ({
         userProfile: {
           ...state.userProfile,
-          resume: data.userProfile.resume, // backend trả về resume mới
+          resume: data.userProfile.resume, // backend trả về mảng resume mới
         },
       }));
     } catch (error) {

@@ -1,28 +1,9 @@
 import React, { useState } from "react";
 import Suggestion from "../common/SuggestionCard";
+import { useUserProfileStore } from "../../stores/useUserProfileStore";
 
 const RightSidebar = ({ cvUrl, setCvUrl }) => {
-  const [loading, setLoading] = useState(false);
-
-  // giả lập upload lên Cloudinary
-  const handleUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setLoading(true);
-
-    // gọi API backend của bạn (multer + cloudinary)
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch("http://localhost:5000/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-    setCvUrl(data.url); // link PDF từ cloudinary
-    setLoading(false);
-  };
+  const { isLoading, uploadResume } = useUserProfileStore();
 
   const handleDelete = () => {
     // gọi API xóa ở backend, sau đó clear cvUrl
@@ -45,23 +26,41 @@ const RightSidebar = ({ cvUrl, setCvUrl }) => {
               Delete CV
             </button>
             <label className="w-full block bg-yellow-500 text-white text-sm px-4 py-2 rounded-full text-center cursor-pointer hover:bg-yellow-600">
-              {loading ? "Uploading..." : "Replace CV"}
+              {isLoading ? (
+                <span className="loading loading-ring loading-xm"></span>
+              ) : (
+                "Replace CV"
+              )}
               <input
                 type="file"
                 accept="application/pdf"
                 className="hidden"
-                onChange={handleUpload}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    uploadResume(file);
+                  }
+                }}
               />
             </label>
           </div>
         ) : (
           <label className="w-full block bg-green-600 text-white text-sm px-4 py-2 rounded-full text-center cursor-pointer hover:bg-green-700">
-            {loading ? "Uploading..." : "Add CV"}
+            {isLoading ? (
+              <span className="loading loading-ring loading-xm"></span>
+            ) : (
+              "Add CV"
+            )}
             <input
               type="file"
               accept="application/pdf"
               className="hidden"
-              onChange={handleUpload}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  uploadResume(file);
+                }
+              }}
             />
           </label>
         )}

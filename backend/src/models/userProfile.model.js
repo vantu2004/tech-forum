@@ -17,7 +17,7 @@ const userProfileSchema = new mongoose.Schema(
     profile_pic: { type: String, default: null },
     cover_pic: { type: String, default: null },
 
-    resume: { type: String, default: null },
+    resume: { type: [String], default: [] },
   },
   { timestamps: true }
 );

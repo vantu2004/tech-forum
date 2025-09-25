@@ -215,5 +215,80 @@ function buildPipelineSearchProfile(selfAuthId, regex) {
   ];
 }
 
+// map mimetype sang đuôi file
+const getFileExtension = (mimetype) => {
+  switch (mimetype) {
+    case "application/pdf":
+      return "pdf";
+    case "application/msword":
+      return "doc";
+    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+      return "docx";
+    default:
+      return ""; // nếu loại không hỗ trợ thì bỏ trống
+  }
+};
+
 
 // upload link CV len cloudinary
+export const uploadUserCV = async (req, res) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: "No CV file uploaded" });
+    }
+
+    // xác định đuôi file
+    const ext = getFileExtension(req.file.mimetype);
+    if (!ext) {
+      return res.status(400).json({ success: false, error: "Unsupported file type" });
+    }
+
+    const fileName = req.file.originalname.replace(/\.[^/.]+$/, ""); // bỏ file extension 
+
+    // Upload buffer 
+    const uploadResult = await cloudinary.uploader.upload_stream(
+      {
+        folder: "cvs",
+        resource_type: "raw", // raw để Cloudinary chấp nhận pdf/doc/docx
+        public_id: `${fileName}.${ext}`, // Tên file trên cloudinary
+      },
+      async (error, result) => {
+        if (error) {
+          console.error(error);
+          return res.status(500).json({ success: false, error: "Upload failed" });
+        }
+
+        // Lưu link vào DB
+        const updatedProfile = await UserProfile.findOneAndUpdate(
+          { userId },
+          { $push: { resume: result.secure_url } },
+          { new: true, runValidators: true }
+        );
+
+        if (!updatedProfile) {
+          return res.status(404).json({ success: false, error: "Profile not found" });
+        }
+
+        res.status(200).json({
+          success: true,
+          message: "CV uploaded successfully",
+          cv_url: result.secure_url,
+          userProfile: updatedProfile,
+        });
+      }
+    );
+
+    // Ghi buffer vào stream
+    uploadResult.end(req.file.buffer);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+

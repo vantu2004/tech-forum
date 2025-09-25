@@ -33,5 +33,34 @@ export const useUserProfileStore = create((set) => ({
     }
   },
 
-  // call api backend upload cv 
+  uploadResume: async (file) => {
+    set({ isLoading: true });
+    try {
+      const formData = new FormData();
+      formData.append("resumeFile", file);
+
+      const { data } = await axiosInstance.post(
+        "/users/profile/resume",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      // cập nhật lại userProfile sau khi upload
+      set((state) => ({
+        userProfile: {
+          ...state.userProfile,
+          resume: data.userProfile.resume, // backend trả về resume mới
+        },
+      }));
+    } catch (error) {
+      console.log(error);
+      throw new Error(
+        error.response?.data?.error || "Error uploading resume"
+      );
+    } finally {
+      set({ isLoading: false });
+    }
+  }
 }));

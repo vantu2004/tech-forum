@@ -255,7 +255,7 @@ export const uploadUserCV = async (req, res) => {
       {
         folder: "cvs",
         resource_type: "raw", // raw để Cloudinary chấp nhận pdf/doc/docx
-        public_id: `${fileName}.${ext}`, // Tên file trên cloudinary
+        public_id: `${fileName}_${Date.now()}.${ext}`, // Tên file trên cloudinary
       },
       async (error, result) => {
         if (error) {
@@ -286,6 +286,119 @@ export const uploadUserCV = async (req, res) => {
     // Ghi buffer vào stream
     uploadResult.end(req.file.buffer);
 
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+export const deleteUserCV = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { resumeUrl } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+    if (!resumeUrl) {
+      return res.status(400).json({ success: false, error: "Missing resumeUrl" });
+    }
+
+    // Xóa file trên Cloudinary 
+    try {
+      const fileName = resumeUrl.split("/").pop()// lấy tên file
+      const publicId = decodeURIComponent(fileName); // decode tên file (nếu có ký tự đặc biệt)
+      //console.log("Deleting Cloudinary file with publicId:", publicId);
+      await cloudinary.uploader.destroy(`cvs/${publicId}`, { resource_type: "raw" });
+    } catch (err) {
+      console.warn("Cloudinary delete failed, skipping:", err.message);
+    }
+
+    // Xóa resume link trong DB
+    const updatedProfile = await UserProfile.findOneAndUpdate(
+      { userId },
+      { $pull: { resume: resumeUrl } },
+      { new: true }
+    );
+
+    if (!updatedProfile) {
+      return res.status(404).json({ success: false, error: "Profile not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "CV deleted successfully",
+      userProfile: updatedProfile,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+export const replaceUserCV = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { oldResumeUrl } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: "No new CV file uploaded" });
+    }
+    if (!oldResumeUrl) {
+      return res.status(400).json({ success: false, error: "Missing oldResumeUrl" });
+    }
+
+    const ext = getFileExtension(req.file.mimetype);
+    if (!ext) {
+      return res.status(400).json({ success: false, error: "Unsupported file type" });
+    }
+    const fileName = req.file.originalname.replace(/\.[^/.]+$/, "");
+
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "cvs",
+        resource_type: "raw",
+        public_id: `${fileName}_${Date.now()}.${ext}`,
+      },
+      async (error, result) => {
+        if (error) {
+          console.error(error);
+          return res.status(500).json({ success: false, error: "Upload failed" });
+        }
+
+        // xóa file cũ trên Cloudinary
+        try {
+          const fileName = oldResumeUrl.split("/").pop()// lấy tên file
+          const publicId = decodeURIComponent(fileName); // decode tên file (nếu có ký tự đặc biệt)
+          await cloudinary.uploader.destroy(`cvs/${publicId}`, { resource_type: "raw" });
+        } catch (err) {
+          console.warn("Cloudinary old file delete failed:", err.message);
+        }
+
+        // thay thế link trong DB
+        const updatedProfile = await UserProfile.findOneAndUpdate(
+          { userId, resume: oldResumeUrl },
+          { $set: { "resume.$": result.secure_url } }, // thay đúng phần tử match
+          { new: true }
+        );
+
+        if (!updatedProfile) {
+          return res.status(404).json({ success: false, error: "Profile not found" });
+        }
+
+        res.status(200).json({
+          success: true,
+          message: "CV replaced successfully",
+          new_cv_url: result.secure_url,
+          userProfile: updatedProfile,
+        });
+      }
+    );
+
+    uploadStream.end(req.file.buffer);
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: "Internal server error" });

@@ -9,7 +9,7 @@ const PostBox = ({ onOpenPostModal }) => {
   useEffect(() => {
     fetchUserProfile();
   }, [fetchUserProfile]);
-
+  
   return (
     <div className="bg-white border rounded-lg shadow-sm p-4">
       {/* Open modal */}

@@ -5,7 +5,9 @@ import {
   getUserProfileByUserId,
   updateProfile,
   getUserProfileByQuery,
-  uploadUserCV
+  uploadUserCV,
+  deleteUserCV,
+  replaceUserCV,
 } from "../controllers/userProfile.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 
@@ -26,6 +28,11 @@ router.post("/resume",
               verifyToken, 
               upload.single("resumeFile"), // bắt field resumeFile trong form-data
               uploadUserCV);
+router.delete("/resume", verifyToken, deleteUserCV);
+router.put("/resume", 
+            verifyToken, 
+            upload.single("resumeFile"), 
+            replaceUserCV);
 
 
 export default router;

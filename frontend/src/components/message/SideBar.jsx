@@ -1,7 +1,9 @@
-import React from "react";
-import { FiMoreVertical } from "react-icons/fi";
+import { FiMoreVertical, FiUser } from "react-icons/fi";
+import { useUserFriendShip } from "../../stores/useUserFriendShip.js";
 
-const MessageContentSideBar = ({ activeChat, setActiveChat, chats }) => {
+const MessageContentSideBar = ({ activeChat, setActiveChat }) => {
+  const { isLoading, userFriendships } = useUserFriendShip();
+
   return (
     <aside
       className={`${
@@ -27,23 +29,40 @@ const MessageContentSideBar = ({ activeChat, setActiveChat, chats }) => {
 
       {/* Chat list */}
       <div className="overflow-y-auto">
-        {chats.map((chat) => (
-          <div
-            key={chat.id}
-            onClick={() => setActiveChat(chat)} // chọn chat
-            className="flex items-center gap-3 p-3 hover:bg-blue-50 cursor-pointer transition border-b border-gray-100"
-          >
-            <img
-              src={chat.avatar}
-              alt={chat.name}
-              className="w-12 h-12 rounded-full ring-2 ring-gray-100"
-            />
-            <div className="flex-1">
-              <p className="font-medium text-gray-800">{chat.name}</p>
-              <p className="text-xs text-gray-500 truncate">{chat.title}</p>
+        {isLoading ? (
+          <div className="p-4 text-sm text-gray-500">Loading friends...</div>
+        ) : userFriendships.length === 0 ? (
+          <div className="p-4 text-sm text-gray-500">No friends found</div>
+        ) : (
+          userFriendships.map((userFriendship) => (
+            <div
+              key={userFriendship._id}
+              onClick={() => setActiveChat(userFriendship)} // chọn chat
+              className="flex items-center gap-3 p-3 hover:bg-blue-50 cursor-pointer transition border-b border-gray-100"
+            >
+              {userFriendship.profile?.profile_pic ? (
+                <img
+                  src={userFriendship.profile.profile_pic}
+                  alt={userFriendship.profile?.name}
+                  className="w-12 h-12 rounded-full ring-2 ring-gray-100 object-cover"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full ring-2 ring-gray-100 bg-gray-200 flex items-center justify-center">
+                  <FiUser className="text-gray-500 text-xl" />
+                </div>
+              )}
+
+              <div className="flex-1">
+                <p className="font-medium text-gray-800">
+                  {userFriendship.profile?.name || "Unknown"}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {userFriendship.profile?.headline || "No headline"}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </aside>
   );

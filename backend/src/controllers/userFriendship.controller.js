@@ -45,14 +45,47 @@ export const getPendingReceivedFriendships = async (req, res) => {
 export const getAcceptedFriendships = async (req, res) => {
   try {
     const userId = String(req.userId);
+
+    // tính cả trường hợp mình là requester hoặc receiver
     const friendships = await UserFriendship.find({
       $or: [
         { requester: userId, status: "ACCEPTED" },
         { receiver: userId, status: "ACCEPTED" },
       ],
+    })
+      .populate({
+        path: "requester",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          model: "UserProfile",
+          select: "name profile_pic headline",
+        },
+      })
+      .populate({
+        path: "receiver",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          model: "UserProfile",
+          select: "name profile_pic headline",
+        },
+      });
+
+    // Lọc ra người bạn còn lại (không phải chính mình)
+    const friends = friendships.map((fs) => {
+      // nếu mình là người gửi thì lấy người nhận và ngược lại
+      const friend =
+        String(fs.requester._id) === userId ? fs.receiver : fs.requester;
+
+      return {
+        _id: friend._id,
+        email: friend.email,
+        profile: friend.profile,
+      };
     });
 
-    res.status(200).json({ success: true, friendships });
+    res.status(200).json({ success: true, friends });
   } catch (error) {
     console.error(error);
     res.status(500).json({

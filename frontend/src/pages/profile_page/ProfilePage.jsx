@@ -13,6 +13,7 @@ import { useUserProfileStore } from "../../stores/useUserProfileStore";
 import { useUserSkillStore } from "../../stores/useUserSkillStore";
 import { useUserExperienceStore } from "../../stores/useUserExperienceStore";
 import { usePostStore } from "../../stores/usePostStore";
+import ImageViewerModal from "../../components/modal/ImageViewerModal.jsx";
 
 const ProfilePage = () => {
   const { id } = useParams();
@@ -36,6 +37,23 @@ const ProfilePage = () => {
   const [openPostedModal, setOpenPostedModal] = useState(false);
 
   const [selectedExperience, setSelectedExperience] = useState(null);
+
+  // gom tất cả data viewer vào 1 state
+  const [viewer, setViewer] = useState({
+    open: false,
+    images: [],
+    initialIndex: 0,
+    post: null,
+  });
+
+  // dùng cho việc lưu post khi mở viewer
+  const [selectedPost, setSelectedPost] = useState(null);
+
+  // nhận images, index được click, và post
+  const openImageViewer = (images = [], initialIndex = 0, post = null) =>
+    setViewer({ open: true, images, initialIndex, post });
+
+  const closeImageViewer = () => setViewer((v) => ({ ...v, open: false }));
 
   const handleOpenInfomationModal = () => {
     setOpenInfomationModal(!openInfomationModal);
@@ -63,8 +81,14 @@ const ProfilePage = () => {
     setOpenMessageModal(!openMessageModal);
   };
 
-  const handleOpenPostedModal = () => {
-    setOpenPostedModal(!openPostedModal);
+  const handleOpenPostedModal = (post = null) => {
+    setSelectedPost(post);
+    setOpenPostedModal(true);
+  };
+
+  const handleClosePostedModal = () => {
+    setSelectedPost(null);
+    setOpenPostedModal(false);
   };
 
   return (
@@ -109,7 +133,23 @@ const ProfilePage = () => {
 
       {openMessageModal && <MessageModal onClose={handleOpenMessageModal} />}
 
-      {openPostedModal && <PostedModal onClose={handleOpenPostedModal} />}
+      {openPostedModal && (
+        <PostedModal
+          onClose={handleClosePostedModal}
+          post={selectedPost}
+          onOpenImageViewer={openImageViewer}
+        />
+      )}
+
+      {viewer.open && (
+        <ImageViewerModal
+          images={viewer.images}
+          initialIndex={viewer.initialIndex}
+          onClose={closeImageViewer}
+          title="Post photos"
+          loop
+        />
+      )}
     </div>
   );
 };

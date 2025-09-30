@@ -29,7 +29,7 @@ const Activity = ({ id, onOpenPostedModal }) => {
 
             return (
               <div
-                onClick={onOpenPostedModal}
+                onClick={() => onOpenPostedModal(post)}
                 key={post._id}
                 className="bg-white rounded-xl shadow-sm hover:shadow-md min-w-[calc(50%-0.5rem)] max-w-[calc(50%-0.5rem)] flex-shrink-0 transition hover:bg-gray-100 cursor-pointer"
               >
@@ -90,7 +90,7 @@ const Activity = ({ id, onOpenPostedModal }) => {
       {!isLoading && posts.length > 0 && (
         <div className="text-center mt-4">
           <Link
-            to={`/profile/${id}/activities`}
+            to={`/profile/activities`}
             className="text-blue-500 font-medium hover:text-blue-700 transition"
           >
             Show all posts →

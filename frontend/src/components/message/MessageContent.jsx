@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SideBar from "./SideBar.jsx";
 import ChatWindow from "./ChatWindow.jsx";
+import { useUserFriendShip } from "../../stores/useUserFriendShip.js";
 
 const chats = [
   {
@@ -54,15 +55,17 @@ const chats = [
 ];
 
 const MessageContent = () => {
+  const { fetchUserFriendships } = useUserFriendShip();
+
   const [activeChat, setActiveChat] = useState(null);
+
+  useEffect(() => {
+    fetchUserFriendships();
+  }, [fetchUserFriendships]);
 
   return (
     <div className="bg-white rounded-lg shadow-md flex h-[650px] md:h-[595px] overflow-hidden border border-gray-100">
-      <SideBar
-        activeChat={activeChat}
-        setActiveChat={setActiveChat}
-        chats={chats}
-      />
+      <SideBar activeChat={activeChat} setActiveChat={setActiveChat} />
 
       <ChatWindow
         activeChat={activeChat}

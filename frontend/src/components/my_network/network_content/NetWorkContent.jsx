@@ -1,42 +1,38 @@
 import Invite from "./Invite";
 import FriendList from "./FriendList";
-import logo from "../../../assets/navbar/logo.png";
+import InviteSent from "./InviteSent";
+import { useUserFriendShipStore } from "./../../../stores/useUserFriendShipStore";
+import { useEffect } from "react";
 
 const NetWorkContent = () => {
-  const friends = [
-    {
-      name: "Hùng Lê Công",
-      title: "Student at HCMC University of Technology...",
-      school: "HCMC University of Technology and Education",
-      avatar: logo,
-      cover: logo,
-    },
-    {
-      name: "Thu Thảo Võ Thị",
-      title: "Student at HCMC University of Technology...",
-      school: "HCMC University of Technology and Education",
-      avatar: logo,
-      cover: logo,
-    },
-  ];
+  const {fetchAcceptedFriends, fetchPeopleYouMayKnow, accepted, peopleYouMayKnow} = useUserFriendShipStore();
+  
+
+  useEffect(() => {
+    fetchAcceptedFriends();
+    fetchPeopleYouMayKnow();
+  }, [fetchAcceptedFriends, fetchPeopleYouMayKnow]);
+
+  console.log("Accepted friends:", accepted);
 
   return (
     <main className="flex-1 space-y-6">
+      <InviteSent />
       <Invite />
 
       <div className="space-y-6">
         {/* Danh sách Connections */}
         <FriendList
           title="Connections"
-          friends={friends}
-          buttonLabel="- Disconnect"
+          friends={accepted}
+          type="Disconnect"
         />
 
         {/* Danh sách People you may know */}
         <FriendList
           title="People you may know"
-          friends={friends}
-          buttonLabel="+ Connect"
+          friends={peopleYouMayKnow}
+          type="Connect"  
         />
       </div>
     </main>

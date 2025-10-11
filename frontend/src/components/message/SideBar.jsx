@@ -1,8 +1,8 @@
 import { FiMoreVertical, FiUser } from "react-icons/fi";
-import { useUserFriendShip } from "../../stores/useUserFriendShip.js";
+import { useUserFriendShipStore } from "../../stores/useUserFriendShipStore.js";
 
 const MessageContentSideBar = ({ activeChat, setActiveChat }) => {
-  const { isLoading, userFriendships } = useUserFriendShip();
+  const { isLoading, accepted } = useUserFriendShipStore();
 
   return (
     <aside
@@ -31,10 +31,10 @@ const MessageContentSideBar = ({ activeChat, setActiveChat }) => {
       <div className="overflow-y-auto">
         {isLoading ? (
           <div className="p-4 text-sm text-gray-500">Loading friends...</div>
-        ) : userFriendships.length === 0 ? (
+        ) : accepted.length === 0 ? (
           <div className="p-4 text-sm text-gray-500">No friends found</div>
         ) : (
-          userFriendships.map((userFriendship) => (
+          accepted.map((userFriendship) => (
             <div
               key={userFriendship._id}
               onClick={() => setActiveChat(userFriendship)} // chọn chat

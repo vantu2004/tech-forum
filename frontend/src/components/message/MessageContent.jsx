@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import SideBar from "./SideBar.jsx";
 import ChatWindow from "./ChatWindow.jsx";
-import { useUserFriendShip } from "../../stores/useUserFriendShip.js";
+import { useUserFriendShipStore } from "../../stores/useUserFriendShipStore.js";
 
 const chats = [
   {
@@ -55,13 +55,13 @@ const chats = [
 ];
 
 const MessageContent = () => {
-  const { fetchUserFriendships } = useUserFriendShip();
+  const { fetchAcceptedFriends } = useUserFriendShipStore();
 
   const [activeChat, setActiveChat] = useState(null);
 
   useEffect(() => {
-    fetchUserFriendships();
-  }, [fetchUserFriendships]);
+    fetchAcceptedFriends();
+  }, [fetchAcceptedFriends]);
 
   return (
     <div className="bg-white rounded-lg shadow-md flex h-[650px] md:h-[595px] overflow-hidden border border-gray-100">

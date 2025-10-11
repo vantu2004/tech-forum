@@ -7,13 +7,39 @@ import mongoose from "mongoose";
 export const getPendingSentFriendships = async (req, res) => {
   try {
     const userId = String(req.userId);
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
 
-    const friendships = await UserFriendship.find({
+    const total = await UserFriendship.countDocuments({
       requester: userId, // mình là người gửi
       status: "PENDING", // trạng thái đang chờ
     });
 
-    return res.status(200).json({ success: true, friendships });
+    const friendships = await UserFriendship.find({
+      requester: userId, // mình là người gửi
+      status: "PENDING", // trạng thái đang chờ
+    })
+      .populate({
+        path: "receiver",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          model: "UserProfile",
+          select: "name profile_pic headline curr_company",
+        },
+      })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    return res.status(200).json({
+      success: true,
+      total: total,
+      page,
+      totalPages: Math.ceil(total / limit),
+      friendships,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -26,13 +52,39 @@ export const getPendingSentFriendships = async (req, res) => {
 export const getPendingReceivedFriendships = async (req, res) => {
   try {
     const userId = String(req.userId);
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
 
-    const friendships = await UserFriendship.find({
+    const total = await UserFriendship.countDocuments({
       receiver: userId, // mình là người nhận
       status: "PENDING", // trạng thái đang chờ
     });
 
-    return res.status(200).json({ success: true, friendships });
+    const friendships = await UserFriendship.find({
+      receiver: userId, // mình là người nhận
+      status: "PENDING", // trạng thái đang chờ
+    })
+      .populate({
+        path: "requester",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          model: "UserProfile",
+          select: "name profile_pic headline curr_company",
+        },
+      })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    return res.status(200).json({
+      success: true,
+      total: total,
+      page,
+      totalPages: Math.ceil(total / limit),
+      friendships,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -59,7 +111,7 @@ export const getAcceptedFriendships = async (req, res) => {
         populate: {
           path: "profile",
           model: "UserProfile",
-          select: "name profile_pic headline",
+          select: "name profile_pic cover_pic headline curr_company",
         },
       })
       .populate({
@@ -68,7 +120,7 @@ export const getAcceptedFriendships = async (req, res) => {
         populate: {
           path: "profile",
           model: "UserProfile",
-          select: "name profile_pic headline",
+          select: "name profile_pic cover_pic headline curr_company",
         },
       });
 
@@ -79,6 +131,7 @@ export const getAcceptedFriendships = async (req, res) => {
         String(fs.requester._id) === userId ? fs.receiver : fs.requester;
 
       return {
+        friendShipId: fs._id,
         _id: friend._id,
         email: friend.email,
         profile: friend.profile,
@@ -95,7 +148,61 @@ export const getAcceptedFriendships = async (req, res) => {
   }
 };
 
-export const addFriendship = async (req, res) => {
+export const getPeopleYouMayKnow = async (req, res) => {
+  try {
+    const userId = String(req.userId);
+
+    // Tìm tất cả các quan hệ bạn bè (friendships) của người dùng hiện tại
+    const allFriendships = await UserFriendship.find({
+      $or: [{ requester: userId }, { receiver: userId }],
+    });
+
+    // Lấy tất cả userId đã kết nối (requester và receiver) để loại khỏi danh sách gợi ý
+    // Đồng thời thêm userId của chính người dùng hiện tại để loại khỏi danh sách
+    const connectedUserIds = new Set([userId]);
+    for (const fs of allFriendships) {
+      connectedUserIds.add(String(fs.requester));
+      connectedUserIds.add(String(fs.receiver));
+    }
+
+    // Tìm người dùng không nằm trong danh sách đã kết nối
+    const suggestions = await UserAuth.find({
+      _id: { $nin: Array.from(connectedUserIds) },
+    })
+      .populate({
+        path: "profile",
+        model: "UserProfile",
+        select: "name profile_pic headline curr_company",
+      })
+      .limit(10);
+
+    // Lọc ra các field không cần thiết
+    const filteredSuggestions = suggestions.map((suggestion) => {
+
+      return {
+        _id: suggestion._id,
+        total: suggestions.length,
+        email: suggestion.email,
+        profile: suggestion.profile,
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: suggestions.length,
+      filteredSuggestions,
+    });
+  } catch (error) {
+    console.error("Error fetching people you may know:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+
+export const addFriendRequest = async (req, res) => {
   try {
     const requesterId = String(req.userId);
     const { receiver } = req.body;
@@ -195,6 +302,44 @@ export const addFriendship = async (req, res) => {
       message: "Friend request sent",
       friendship: friendship,
     });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+export const cancelFriendRequest = async (req, res) => {
+  try {
+    const requesterId = String(req.userId);
+    const { friendshipId } = req.body;
+    const friendship = await UserFriendship.findById(friendshipId);
+    if (!friendship) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Friendship not found" });
+    }
+
+    if (String(friendship.requester) !== requesterId) {
+      return res.status(403).json({
+        success: false,
+        error: "Not authorized to cancel this request",
+      });
+    }
+
+    if (friendship.status !== "PENDING") {
+      return res.status(400).json({
+        success: false,
+        error: `Cannot cancel friendship with status ${friendship.status}`,
+      });
+    }
+
+    await UserFriendship.findByIdAndDelete(friendshipId);
+    return res
+      .status(200)
+      .json({ success: true, message: "Friend request canceled" });
   } catch (error) {
     console.error(error);
     res.status(500).json({

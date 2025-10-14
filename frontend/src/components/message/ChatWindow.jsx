@@ -1,7 +1,33 @@
-import { FiMoreVertical, FiSend, FiPaperclip, FiSmile } from "react-icons/fi";
-import { FiArrowLeft } from "react-icons/fi";
+import {
+  FiMoreVertical,
+  FiSend,
+  FiPaperclip,
+  FiSmile,
+  FiArrowLeft,
+  FiUser,
+} from "react-icons/fi";
+import { useEffect } from "react";
+import { useMessageStore } from "../../stores/useMessageStore.js";
+import { useUserProfileStore } from "../../stores/useUserProfileStore.js";
+import ChatInput from "./ChatInput.jsx";
 
-const MessageContentChatWindow = ({ activeChat, setActiveChat, chats }) => {
+const ChatWindow = ({ activeChat, setActiveChat }) => {
+  const { userProfile, fetchUserProfile } = useUserProfileStore();
+  const { messages, isFetchLoading, fetchMessages } = useMessageStore();
+
+  useEffect(() => {
+    fetchUserProfile();
+
+    if (activeChat?._id) {
+      fetchMessages(activeChat._id); // fetch theo conversationId
+    }
+  }, [activeChat, fetchMessages, fetchUserProfile]);
+
+  // Tìm người bạn còn lại (trong participants)
+  const friend =
+    activeChat?.participants?.find((p) => p._id !== userProfile?.userId) ||
+    null;
+
   return (
     <section
       className={`flex-1 flex flex-col bg-gradient-to-b from-gray-50 to-white w-full ${
@@ -13,23 +39,32 @@ const MessageContentChatWindow = ({ activeChat, setActiveChat, chats }) => {
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-white">
             <div className="flex items-center gap-3">
-              {/* Nút back chỉ hiện ở mobile */}
+              {/* Nút back (mobile) */}
               <button
                 className="md:hidden p-1 mr-2 rounded hover:bg-gray-100"
                 onClick={() => setActiveChat(null)}
               >
                 <FiArrowLeft size={20} />
               </button>
-              <img
-                src={activeChat.avatar}
-                alt={activeChat.name}
-                className="w-10 h-10 md:w-12 md:h-12 rounded-full ring-2 ring-blue-100"
-              />
+
+              {/* Avatar bạn bè */}
+              {friend?.profile?.profile_pic ? (
+                <img
+                  src={friend.profile.profile_pic}
+                  alt={friend.profile?.name}
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full ring-2 ring-blue-100 object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full ring-2 ring-blue-100 flex items-center justify-center bg-gray-100">
+                  <FiUser className="text-gray-500 text-xl" />
+                </div>
+              )}
+
               <div>
                 <p className="font-semibold text-gray-800 text-sm md:text-base">
-                  {activeChat.name}
+                  {friend?.profile?.name || "Unknown"}
                 </p>
-                <p className="text-xs text-gray-500">{activeChat.title}</p>
+                <p className="text-xs text-gray-500">{friend?.headline}</p>
               </div>
             </div>
             <button className="p-1 rounded hover:bg-gray-100">
@@ -39,46 +74,92 @@ const MessageContentChatWindow = ({ activeChat, setActiveChat, chats }) => {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-3 md:p-6 space-y-4">
-            <div className="flex items-start gap-2">
-              <img
-                src={activeChat.avatar}
-                alt="sender"
-                className="w-7 h-7 md:w-8 md:h-8 rounded-full"
-              />
-              <div className="max-w-[75%] bg-white p-2 md:p-3 rounded-2xl shadow text-gray-700 border border-gray-100 text-sm md:text-base">
-                Hello! How are you?
+            {isFetchLoading ? (
+              <div className="text-gray-500 text-sm">Loading messages...</div>
+            ) : messages.length === 0 ? (
+              <div className="text-gray-400 text-sm text-center mt-6">
+                No messages yet
               </div>
-            </div>
+            ) : (
+              messages.map((msg) => {
+                const isMine = msg.senderId._id === userProfile?.userId;
+                return (
+                  <div
+                    key={msg._id}
+                    className={`flex items-start gap-2 ${
+                      isMine ? "justify-end" : ""
+                    }`}
+                  >
+                    {/* Avatar của người gửi */}
+                    {!isMine && (
+                      <>
+                        {msg.senderId.profile?.profile_pic ? (
+                          <img
+                            src={msg.senderId.profile.profile_pic}
+                            alt={msg.senderId.profile?.name}
+                            className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <FiUser className="text-gray-500 text-sm" />
+                          </div>
+                        )}
+                      </>
+                    )}
 
-            <div className="flex justify-end items-start gap-2">
-              <div className="max-w-[75%] bg-blue-600 text-white p-2 md:p-3 rounded-2xl shadow text-sm md:text-base">
-                I’m doing well, thanks! What about you?
-              </div>
-              <img
-                src={chats[1].avatar}
-                alt="me"
-                className="w-7 h-7 md:w-8 md:h-8 rounded-full"
-              />
-            </div>
+                    {/* Nội dung tin nhắn */}
+                    <div
+                      className={`flex flex-col ${
+                        isMine ? "items-end" : "items-start"
+                      }`}
+                    >
+                      {/* Nếu có ảnh */}
+                      {msg.picture && (
+                        <img
+                          src={msg.picture}
+                          alt="message"
+                          className="max-w-xs md:max-w-sm rounded-xl border border-gray-200 shadow-sm"
+                        />
+                      )}
+
+                      {/* Nếu có text */}
+                      {msg.message && (
+                        <div
+                          className={`mt-1 max-w-[100%] p-2 md:p-3 rounded-2xl shadow text-sm md:text-base border border-gray-100 ${
+                            isMine
+                              ? "bg-blue-600 text-white rounded-br-none"
+                              : "bg-white text-gray-700 rounded-bl-none"
+                          }`}
+                        >
+                          {msg.message}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Avatar của mình */}
+                    {isMine && (
+                      <>
+                        {userProfile?.profile_pic ? (
+                          <img
+                            src={userProfile.profile_pic}
+                            alt="Me"
+                            className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <FiUser className="text-gray-500 text-sm" />
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
 
           {/* Input */}
-          <div className="p-3 md:p-4 border-t border-gray-100 bg-white flex items-center gap-2 md:gap-3">
-            <button className="text-gray-500 hover:text-gray-700">
-              <FiSmile size={18} />
-            </button>
-            <button className="text-gray-500 hover:text-gray-700">
-              <FiPaperclip size={18} />
-            </button>
-            <input
-              type="text"
-              placeholder="Write a message..."
-              className="flex-1 border border-gray-200 rounded-full px-3 md:px-4 py-1.5 md:py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
-            />
-            <button className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition">
-              <FiSend size={16} />
-            </button>
-          </div>
+          <ChatInput activeChat={activeChat} />
         </>
       ) : (
         <div className="hidden md:flex flex-1 items-center justify-center text-gray-400">
@@ -89,4 +170,4 @@ const MessageContentChatWindow = ({ activeChat, setActiveChat, chats }) => {
   );
 };
 
-export default MessageContentChatWindow;
+export default ChatWindow;

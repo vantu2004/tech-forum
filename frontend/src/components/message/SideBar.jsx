@@ -1,8 +1,10 @@
 import { FiMoreVertical, FiUser } from "react-icons/fi";
-import { useUserFriendShipStore } from "../../stores/useUserFriendShipStore.js";
+import { useConversationStore } from "../../stores/useConversationStore.js";
+import { useUserAuthStore } from "../../stores/useUserAuthStore.js"; // nơi bạn lưu user hiện tại
 
-const MessageContentSideBar = ({ activeChat, setActiveChat }) => {
-  const { isLoading, accepted } = useUserFriendShipStore();
+const SideBar = ({ activeChat, setActiveChat }) => {
+  const { isLoading, conversations } = useConversationStore();
+  const { userAuth } = useUserAuthStore(); // giả sử user._id là id người hiện tại
 
   return (
     <aside
@@ -30,42 +32,58 @@ const MessageContentSideBar = ({ activeChat, setActiveChat }) => {
       {/* Chat list */}
       <div className="overflow-y-auto">
         {isLoading ? (
-          <div className="p-4 text-sm text-gray-500">Loading friends...</div>
-        ) : accepted.length === 0 ? (
-          <div className="p-4 text-sm text-gray-500">No friends found</div>
+          <div className="p-4 text-sm text-gray-500">
+            Loading conversations...
+          </div>
+        ) : conversations.length === 0 ? (
+          <div className="p-4 text-sm text-gray-500">
+            No conversations found
+          </div>
         ) : (
-          accepted.map((userFriendship) => (
-            <div
-              key={userFriendship._id}
-              onClick={() => setActiveChat(userFriendship)} // chọn chat
-              className="flex items-center gap-3 p-3 hover:bg-blue-50 cursor-pointer transition border-b border-gray-100"
-            >
-              {userFriendship.profile?.profile_pic ? (
-                <img
-                  src={userFriendship.profile.profile_pic}
-                  alt={userFriendship.profile?.name}
-                  className="w-12 h-12 rounded-full ring-2 ring-gray-100 object-cover"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full ring-2 ring-gray-100 bg-gray-200 flex items-center justify-center">
-                  <FiUser className="text-gray-500 text-xl" />
-                </div>
-              )}
+          conversations.map((conversation) => {
+            // tìm người còn lại (không phải mình)
+            const friend = conversation.participants.find(
+              (p) => p._id !== userAuth?._id
+            );
 
-              <div className="flex-1">
-                <p className="font-medium text-gray-800">
-                  {userFriendship.profile?.name || "Unknown"}
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {userFriendship.profile?.headline || "No headline"}
-                </p>
+            return (
+              <div
+                key={conversation._id}
+                onClick={() => setActiveChat(conversation)} // chọn chat
+                className="flex items-center gap-3 p-3 hover:bg-blue-50 cursor-pointer transition border-b border-gray-100"
+              >
+                {/* Avatar */}
+                {friend?.profile?.profile_pic ? (
+                  <img
+                    src={friend.profile.profile_pic}
+                    alt={friend.profile?.name}
+                    className="w-12 h-12 rounded-full ring-2 ring-gray-100 object-cover"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full ring-2 ring-gray-100 bg-gray-200 flex items-center justify-center">
+                    <FiUser className="text-gray-500 text-xl" />
+                  </div>
+                )}
+
+                {/* Info */}
+                <div className="flex-1">
+                  <p className="font-medium text-gray-800">
+                    {friend?.profile?.name || "Unknown"}
+                  </p>
+                  <p
+                    className="text-xs text-gray-500 truncate max-w-[180px]"
+                    title={friend?.headline}
+                  >
+                    {friend?.headline}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </aside>
   );
 };
 
-export default MessageContentSideBar;
+export default SideBar;

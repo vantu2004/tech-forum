@@ -1,6 +1,7 @@
 import Message from "../models/message.model.js";
 import Conversation from "../models/conversation.model.js";
 import mongoose from "mongoose";
+import cloudinary from "../lib/cloudinary.js";
 
 export const getAllMessages = async (req, res) => {
   try {
@@ -78,13 +79,22 @@ export const sendMessage = async (req, res) => {
         error: "You are not a participant of this conversation.",
       });
     }
+    // upload picture to cloudinary (if any)
+    let pictureUrl = null;
+    if (picture) {
+      const uploadResult = await cloudinary.uploader.upload(picture, {
+        folder: "messages",
+        resource_type: "image",
+      });
+      pictureUrl = uploadResult.secure_url;
+    }
 
     // Create message
     let newMessage = await Message.create({
       conversationId,
       senderId: userId,
       message: message?.trim() || null,
-      picture: picture || null,
+      picture: pictureUrl || null,
     });
 
     // Populate sender info

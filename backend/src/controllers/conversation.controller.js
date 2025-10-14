@@ -59,7 +59,7 @@ export const createConversation = async (req, res) => {
     res
       .status(200)
       .json({ success: true, message: "Message sent successfully" });
-  } catch (err) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
@@ -98,7 +98,7 @@ export const getConversation = async (req, res) => {
 
     // 3) Trả về danh sách conversation đã kèm thông tin email + profile
     res.status(200).json({ success: true, conversations });
-  } catch (err) {
+  } catch (error) {
     // 4) Log lỗi server (để debug)
     console.error(error);
     res.status(500).json({

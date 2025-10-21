@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import logo from "../../../assets/navbar/logo.png";
+import { useEffect, useState } from "react";
 import { useUserFriendShipStore } from "../../../stores/useUserFriendShipStore";
 import NetworkConfirmModal from "../../modal/NetworkConfirmModal";
 import toast from "react-hot-toast";
+import { FaCircleUser } from "react-icons/fa6";
 
 const InviteSent = () => {
   const { fetchPendingSent, pendingSent, isLoading, cancelFriendRequest } =
@@ -16,15 +16,11 @@ const InviteSent = () => {
     fetchPendingSent(currentPage);
   }, [fetchPendingSent, currentPage]);
 
-
-  console.log("Pending sent invites:", pendingSent);
-
   const totalPages = pendingSent.totalPages || 1;
 
   const nextPage = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const prevPage = () => 
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   const handleOpenCancelModal = (id) => {
     setActiveId(id);
@@ -67,26 +63,32 @@ const InviteSent = () => {
             className="flex flex-col md:flex-row md:items-center md:justify-between border border-gray-300 rounded-lg p-3 gap-3"
           >
             {/* Left: avatar + info */}
-            <div className="flex items-start gap-3">
-              <img
-                src={invite.receiver?.profile_pic || logo}
-                alt={invite.receiver?.profile?.name || "Unknown"}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              <div>
+            <div className="flex items-center gap-3">
+              {invite.receiver?.profile?.profile_pic ? (
+                <img
+                  src={invite.receiver?.profile?.profile_pic}
+                  alt={invite.receiver?.profile?.name || "Unknown"}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+              ) : (
+                <FaCircleUser className="w-12 h-12 rounded-full text-gray-400 bg-white  border-white" />
+              )}
+
+              <div className="flex flex-col justify-center">
                 <p className="font-medium">
                   {invite.receiver?.profile?.name || "Unknown"}
                 </p>
-                <p className="text-sm text-gray-600">
-                  {invite.receiver?.profile?.headline || "No headline"}
-                </p>
+
+                {invite.receiver?.profile?.headline && (
+                  <p className="text-sm text-gray-600">
+                    {invite.receiver.profile.headline}
+                  </p>
+                )}
+
                 {invite.receiver?.profile?.curr_company && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <img src={logo} alt="company" className="w-4 h-4" />
-                    <span className="text-xs text-gray-500">
-                      {invite.receiver.profile.curr_company}
-                    </span>
-                  </div>
+                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                    {invite.receiver.profile.curr_company}
+                  </p>
                 )}
               </div>
             </div>
@@ -143,7 +145,13 @@ const InviteSent = () => {
       )}
 
       {/* Confirmation modal */}
-      {showModal && <NetworkConfirmModal onClose={handleCloseCancelModal} action={"Cancel"} onConfirm={handleConfirmCancel}/>}
+      {showModal && (
+        <NetworkConfirmModal
+          onClose={handleCloseCancelModal}
+          action={"Cancel"}
+          onConfirm={handleConfirmCancel}
+        />
+      )}
     </section>
   );
 };

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-import logo from "../../../assets/navbar/logo.png";
+import { useEffect, useState } from "react";
 import { useUserFriendShipStore } from "./../../../stores/useUserFriendShipStore";
 import NetworkConfirmModal from "../../modal/NetworkConfirmModal";
 import toast from "react-hot-toast";
+import { FaCircleUser } from "react-icons/fa6";
+
 const Invite = () => {
   const {
     fetchPendingReceived,
@@ -89,19 +90,27 @@ const Invite = () => {
           className="flex flex-col md:flex-row md:items-center md:justify-between border border-gray-300 rounded-lg p-3 gap-3 mb-3"
         >
           {/* Left: avatar + info */}
-          <div className="flex items-start gap-3">
-            <img
-              src={invite?.requester.profile?.profile_pic || logo}
-              alt="avatar"
-              className="w-12 h-12 rounded-full object-cover"
-            />
-            <div>
+          <div className="flex items-center gap-3">
+            {invite?.requester?.profile?.profile_pic ? (
+              <img
+                src={invite.requester.profile.profile_pic}
+                alt="avatar"
+                className="w-12 h-12 rounded-full object-cover"
+              />
+            ) : (
+              <FaCircleUser className="w-12 h-12 rounded-full text-gray-400 bg-white border-white" />
+            )}
+
+            <div className="flex flex-col justify-center">
               <p className="font-medium">
                 {invite?.requester?.profile?.name || "Unknown"}
               </p>
-              <p className="text-sm text-gray-600">
-                {invite?.requester?.profile?.headline || "No headline"}
-              </p>
+
+              {invite?.requester?.profile?.headline && (
+                <p className="text-sm text-gray-600">
+                  {invite.requester.profile.headline}
+                </p>
+              )}
             </div>
           </div>
 
@@ -159,17 +168,21 @@ const Invite = () => {
       )}
 
       {/* Confirmation modal */}
-      {showDeclineModal && <NetworkConfirmModal
-        action={"Decline"}
-        onClose={handleCloseDeclineModal}
-        onConfirm={handleDecline}
-      />}
+      {showDeclineModal && (
+        <NetworkConfirmModal
+          action={"Decline"}
+          onClose={handleCloseDeclineModal}
+          onConfirm={handleDecline}
+        />
+      )}
 
-      {showAcceptModal && <NetworkConfirmModal
-        action={"Accept"}
-        onClose={handleCloseAcceptModal}
-        onConfirm={handleAccept}
-      />}
+      {showAcceptModal && (
+        <NetworkConfirmModal
+          action={"Accept"}
+          onClose={handleCloseAcceptModal}
+          onConfirm={handleAccept}
+        />
+      )}
     </section>
   );
 };

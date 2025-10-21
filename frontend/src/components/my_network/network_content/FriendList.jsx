@@ -1,11 +1,12 @@
 import { useState } from "react";
-import logo from "../../../assets/navbar/logo.png";
 import { useUserFriendShipStore } from "./../../../stores/useUserFriendShipStore";
 import NetworkConfirmModal from "./../../modal/NetworkConfirmModal";
 import { toast } from "react-hot-toast";
+import { FaCircleUser } from "react-icons/fa6";
 
 const FriendCard = ({ friend, type }) => {
-  const { removeFriendship, sendFriendRequest, pendingSent } = useUserFriendShipStore();
+  const { removeFriendship, sendFriendRequest, pendingSent } =
+    useUserFriendShipStore();
   const [activeId, setActiveId] = useState(null); // state để disable button trong khi cancel
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [showConnectModal, setShowConnectModal] = useState(false);
@@ -62,26 +63,33 @@ const FriendCard = ({ friend, type }) => {
     <div className="relative border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
       {/* Cover image */}
       <div className="w-full h-20 bg-gray-200">
-        <img
-          src={friend.profile?.cover_pic || logo}
-          alt="cover"
-          className="w-full h-full object-cover"
-        />
+        {friend.profile?.cover_pic && (
+          <img
+            src={friend.profile?.cover_pic}
+            alt="cover"
+            className="w-full h-full object-cover"
+          />
+        )}
       </div>
 
       {/* Content */}
       <div className="flex flex-col items-center px-4 pb-4 -mt-10 flex-1">
-        <img
-          src={friend.profile?.profile_pic || logo}
-          alt={friend.profile?.name}
-          className="w-20 h-20 rounded-full border-2 border-white object-cover mb-2"
-        />
+        {friend.profile?.profile_pic ? (
+          <img
+            src={friend.profile?.profile_pic}
+            alt={friend.profile?.name}
+            className="w-20 h-20 rounded-full border-2 border-white object-cover mb-2"
+          />
+        ) : (
+          <FaCircleUser className="w-20 h-20 rounded-full text-gray-400 bg-white border-2 border-white" />
+        )}
 
         <p className="font-medium">{friend.profile?.name}</p>
-        <p className="text-sm text-gray-600 mb-2">{friend.profile?.headline}</p>
+        <p className="text-sm text-gray-600 mb-2 text-center">
+          {friend.profile?.headline}
+        </p>
 
         <div className="flex items-center justify-center gap-1 mb-3">
-          <img src={logo} alt="school" className="w-4 h-4" />
           <span className="text-xs text-gray-500">
             {friend.profile?.curr_company}
           </span>
@@ -137,9 +145,15 @@ const FriendList = ({ title, friends, type }) => {
     <section className="bg-white rounded-lg shadow-sm p-4">
       <h2 className="font-semibold mb-3">{title}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {friends.map((f, idx) => (
-          <FriendCard key={idx} friend={f} type={type} />
-        ))}
+        {friends.length === 0 ? (
+          <p className="text-gray-500 text-sm">
+            No {title.toLowerCase()} found.
+          </p>
+        ) : (
+          friends.map((f, idx) => (
+            <FriendCard key={idx} friend={f} type={type} />
+          ))
+        )}
       </div>
     </section>
   );

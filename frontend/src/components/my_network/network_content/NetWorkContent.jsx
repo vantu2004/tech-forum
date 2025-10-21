@@ -5,15 +5,17 @@ import { useUserFriendShipStore } from "./../../../stores/useUserFriendShipStore
 import { useEffect } from "react";
 
 const NetWorkContent = () => {
-  const {fetchAcceptedFriends, fetchPeopleYouMayKnow, accepted, peopleYouMayKnow} = useUserFriendShipStore();
-  
+  const {
+    fetchAcceptedFriends,
+    fetchPeopleYouMayKnow,
+    accepted,
+    peopleYouMayKnow,
+  } = useUserFriendShipStore();
 
   useEffect(() => {
     fetchAcceptedFriends();
     fetchPeopleYouMayKnow();
   }, [fetchAcceptedFriends, fetchPeopleYouMayKnow]);
-
-  console.log("Accepted friends:", accepted);
 
   return (
     <main className="flex-1 space-y-6">
@@ -22,17 +24,13 @@ const NetWorkContent = () => {
 
       <div className="space-y-6">
         {/* Danh sách Connections */}
-        <FriendList
-          title="Connections"
-          friends={accepted}
-          type="Disconnect"
-        />
+        <FriendList title="Connections" friends={accepted} type="Disconnect" />
 
         {/* Danh sách People you may know */}
         <FriendList
           title="People you may know"
           friends={peopleYouMayKnow}
-          type="Connect"  
+          type="Connect"
         />
       </div>
     </main>

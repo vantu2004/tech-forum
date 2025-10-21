@@ -37,6 +37,18 @@ export const getExperiences = async (req, res) => {
   }
 };
 
+export const getExperiencesByUserId = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const experiences = await UserExperience.find({ userId });
+
+    res.status(200).json({ success: true, experiences });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 export const createExperience = async (req, res) => {
   try {
     const userId = req.userId;

@@ -11,6 +11,17 @@ export const getSkills = async (req, res) => {
   }
 };
 
+export const getSkillsByUserId = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const doc = await UserSkill.findOne({ userId });
+    res.json({ success: true, skills: doc?.skills || [] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: "Failed to fetch skills" });
+  }
+};
+
 export const updateSkills = async (req, res) => {
   try {
     const userId = req.userId;

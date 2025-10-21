@@ -20,6 +20,7 @@ import { useEffect } from "react";
 import { useUserAuthStore } from "./stores/useUserAuthStore";
 import { Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import UserProfilePage from "./pages/profile_page/UserProfilePage.jsx";
 
 // nếu chưa login hoặc verify tài khoản thì redirect to login page hoặc verify email page ko thì trả về children
 const ProtectedRoute = ({ children }) => {
@@ -170,6 +171,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/user/:id"
+            element={
+              <ProtectedRoute>
+                <UserProfilePage />
               </ProtectedRoute>
             }
           />

@@ -20,6 +20,21 @@ export const useUserSkillStore = create((set) => ({
     }
   },
 
+  fetchUserSkillsByUserId: async (userId) => {
+    set({ isLoading: true });
+    try {
+      const { data } = await axiosInstance.get(`/users/skills/${userId}`);
+      set({ userSkills: data.skills });
+    } catch (error) {
+      set({ userSkills: [] });
+      throw new Error(
+        error.response?.data?.error || "Error fetching user skills"
+      );
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   updateUserSkills: async (skills) => {
     set({ isLoading: true });
     try {

@@ -7,11 +7,29 @@ export const useUserProfileStore = create((set) => ({
   userProfile: null,
   isLoading: false,
 
+  // dùng khi lấy user profile bằng id
+  userProfileById: null,
+
   fetchUserProfile: async () => {
     set({ isLoading: true });
     try {
       const { data } = await axiosInstance.get("/users/profile");
       set({ userProfile: data.userProfile });
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.error || "Error fetching user profile"
+      );
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchUserProfileByUserId: async (userId) => {
+    set({ isLoading: true });
+    try {
+      const { data } = await axiosInstance.get(`/users/profile/${userId}`);
+
+      set({ userProfileById: data.userProfile });
     } catch (error) {
       throw new Error(
         error.response?.data?.error || "Error fetching user profile"
@@ -58,9 +76,7 @@ export const useUserProfileStore = create((set) => ({
       }));
     } catch (error) {
       console.log(error);
-      throw new Error(
-        error.response?.data?.error || "Error uploading resume"
-      );
+      throw new Error(error.response?.data?.error || "Error uploading resume");
     } finally {
       set({ isLoading: false });
     }
@@ -80,9 +96,7 @@ export const useUserProfileStore = create((set) => ({
         },
       }));
     } catch (error) {
-      throw new Error(
-        error.response?.data?.error || "Error deleting resume"
-      );
+      throw new Error(error.response?.data?.error || "Error deleting resume");
     } finally {
       set({ isLoading: false });
     }
@@ -108,11 +122,9 @@ export const useUserProfileStore = create((set) => ({
         },
       }));
     } catch (error) {
-      throw new Error(
-        error.response?.data?.error || "Error replacing resume"
-      );
+      throw new Error(error.response?.data?.error || "Error replacing resume");
     } finally {
       set({ isLoading: false });
     }
-  }
+  },
 }));

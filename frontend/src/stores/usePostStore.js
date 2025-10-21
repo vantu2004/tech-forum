@@ -20,6 +20,19 @@ export const usePostStore = create((set) => ({
     }
   },
 
+  fetchPostsByUserId: async (userId) => {
+    set({ isLoading: true });
+    try {
+      const { data } = await axiosInstance.get(`/posts/user/${userId}`);
+      set({ posts: data.posts });
+    } catch (error) {
+      set({ posts: [] });
+      throw new Error(error.response?.data?.error || "Error fetching posts");
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   createPost: async (post) => {
     set({ isLoading: true });
     try {

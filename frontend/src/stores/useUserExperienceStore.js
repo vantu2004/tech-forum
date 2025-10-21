@@ -38,6 +38,23 @@ export const useUserExperienceStore = create((set) => ({
     }
   },
 
+  fetchUserExperiencesByUserId: async (userId) => {
+    set({ isLoading: true });
+    try {
+      const { data } = await axiosInstance.get(
+        `/users/experiences/user/${userId}`
+      );
+      set({ userExperiences: data.experiences });
+    } catch (error) {
+      set({ userExperiences: [] });
+      throw new Error(
+        error.response?.data?.error || "Error fetching user experiences"
+      );
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   createExperience: async (experience) => {
     set({ isLoading: true });
     try {

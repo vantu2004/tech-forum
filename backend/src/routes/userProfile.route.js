@@ -11,9 +11,6 @@ import {
 } from "../controllers/userProfile.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 
-
-
-
 const router = express.Router();
 
 // lấy profile của bản thân
@@ -24,15 +21,13 @@ router.get("/search", verifyToken, getUserProfileByQuery);
 router.get("/:userId", getUserProfileByUserId);
 router.put("/", verifyToken, updateProfile);
 //upload cv
-router.post("/resume", 
-              verifyToken, 
-              upload.single("resumeFile"), // bắt field resumeFile trong form-data
-              uploadUserCV);
+router.post(
+  "/resume",
+  verifyToken,
+  upload.single("resumeFile"), // bắt field resumeFile trong form-data
+  uploadUserCV
+);
 router.delete("/resume", verifyToken, deleteUserCV);
-router.put("/resume", 
-            verifyToken, 
-            upload.single("resumeFile"), 
-            replaceUserCV);
-
+router.put("/resume", verifyToken, upload.single("resumeFile"), replaceUserCV);
 
 export default router;

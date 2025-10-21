@@ -6,12 +6,14 @@ import {
   createExperience,
   updateExperience,
   deleteExperience,
+  getExperiencesByUserId,
 } from "../controllers/userExperience.controller.js";
 
 const router = express.Router();
 
 router.get("/:experienceId", verifyToken, getExperience);
 router.get("/", verifyToken, getExperiences);
+router.get("/user/:userId", verifyToken, getExperiencesByUserId);
 router.post("/", verifyToken, createExperience);
 router.put("/:experienceId", verifyToken, updateExperience);
 router.delete("/:experienceId", verifyToken, deleteExperience);

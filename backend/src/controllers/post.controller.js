@@ -187,3 +187,30 @@ export const getPostsByUser = async (req, res) => {
     });
   }
 };
+
+export const getPostsByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const posts = await Post.find({ userId })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "userId",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          select: "name headline profile_pic",
+        },
+      })
+      .lean();
+    res.status(200).json({
+      success: true,
+      posts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};

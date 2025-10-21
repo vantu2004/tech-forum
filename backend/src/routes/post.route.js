@@ -6,6 +6,7 @@ import {
   getAllPosts,
   getPostById,
   getPostsByUser,
+  getPostsByUserId,
 } from "../controllers/post.controller.js";
 
 const router = express.Router();
@@ -13,6 +14,7 @@ const router = express.Router();
 router.post("/", verifyToken, addPost);
 router.post("/like-dislike", verifyToken, likeDislikePost);
 router.get("/owner", verifyToken, getPostsByUser);
+router.get("/user/:userId", getPostsByUserId);
 router.get("/", getAllPosts);
 router.get("/:postId", getPostById);
 

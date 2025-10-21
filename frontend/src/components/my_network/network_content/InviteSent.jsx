@@ -4,7 +4,7 @@ import { useUserFriendShipStore } from "../../../stores/useUserFriendShipStore";
 import NetworkConfirmModal from "../../modal/NetworkConfirmModal";
 import toast from "react-hot-toast";
 
-const InviteSent = () => {
+const InviteSent = ({ setTotalSent }) => {
   const { fetchPendingSent, pendingSent, isLoading, cancelFriendRequest } =
     useUserFriendShipStore();
 
@@ -16,8 +16,7 @@ const InviteSent = () => {
     fetchPendingSent(currentPage);
   }, [fetchPendingSent, currentPage]);
 
-
-  console.log("Pending sent invites:", pendingSent);
+  setTotalSent(pendingSent.total);
 
   const totalPages = pendingSent.totalPages || 1;
 

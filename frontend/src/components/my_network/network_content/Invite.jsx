@@ -3,7 +3,7 @@ import logo from "../../../assets/navbar/logo.png";
 import { useUserFriendShipStore } from "./../../../stores/useUserFriendShipStore";
 import NetworkConfirmModal from "../../modal/NetworkConfirmModal";
 import toast from "react-hot-toast";
-const Invite = () => {
+const Invite = ({setTotalReceived}) => {
   const {
     fetchPendingReceived,
     pendingReceived,
@@ -21,6 +21,8 @@ const Invite = () => {
   useEffect(() => {
     fetchPendingReceived(currentPage);
   }, [fetchPendingReceived, currentPage]);
+
+  setTotalReceived(pendingReceived.total);
 
   const totalPages = pendingReceived.totalPages || 1;
 

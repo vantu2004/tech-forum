@@ -20,6 +20,13 @@ import { useEffect } from "react";
 import { useUserAuthStore } from "./stores/useUserAuthStore";
 import { Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { pdfjs } from 'react-pdf';
+
+// React-pdf
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
 
 // nếu chưa login hoặc verify tài khoản thì redirect to login page hoặc verify email page ko thì trả về children
 const ProtectedRoute = ({ children }) => {
@@ -53,6 +60,9 @@ function App() {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+
+  console.log(isAuthenticated)
 
   if (isCheckingAuth) {
     return (

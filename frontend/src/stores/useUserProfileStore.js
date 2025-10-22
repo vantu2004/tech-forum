@@ -127,4 +127,29 @@ export const useUserProfileStore = create((set) => ({
       set({ isLoading: false });
     }
   },
+
+  setDefaultResume: async (resumeUrl) => {
+    set({ isLoading: true });
+    try {
+      const { data } = await axiosInstance.put(
+        "/users/profile/resume/default",
+        {
+          resumeUrl,
+        }
+      );
+
+      set((state) => ({
+        userProfile: {
+          ...state.userProfile,
+          defaultResume: data.userProfile.defaultResume,
+        },
+      }));
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.error || "Error setting default resume"
+      );
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 }));

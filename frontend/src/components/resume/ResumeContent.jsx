@@ -3,8 +3,14 @@ import { useUserProfileStore } from "../../stores/useUserProfileStore";
 import { Document, Page } from "react-pdf";
 
 const ResumeContent = ({ cvOptions = [] }) => {
-  const { selectedIndex, setSelectedIndex, uploadResume } =
-    useUserProfileStore();
+  const {
+    selectedIndex,
+    setSelectedIndex,
+    uploadResume,
+    userProfile,
+    setDefaultResume,
+  } = useUserProfileStore();
+
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
 
@@ -16,21 +22,25 @@ const ResumeContent = ({ cvOptions = [] }) => {
     }
   }, [cvOptions, setSelectedIndex]);
 
-  const handleSelectChange = (e) => {
-    setSelectedIndex(Number(e.target.value));
+  const handleSelectChange = async (e) => {
+    await setSelectedIndex(Number(e.target.value));
   };
 
   const handlePrev = () => {
-     setPageNumber((pageNum) => Math.max(pageNum - 1, 1));
-     window.scrollTo({ top: 155, behavior: "smooth" });
-  }
+    setPageNumber((pageNum) => Math.max(pageNum - 1, 1));
+    window.scrollTo({ top: 155, behavior: "smooth" });
+  };
 
   const handleNext = () => {
     setPageNumber((pageNum) => Math.min(pageNum + 1, numPages));
     window.scrollTo({ top: 155, behavior: "smooth" });
-  }
+  };
 
   const selectedCv = cvOptions[selectedIndex] || "";
+
+  const handleSetDefault = (resumeUrl) => {
+    setDefaultResume(resumeUrl);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
@@ -42,24 +52,46 @@ const ResumeContent = ({ cvOptions = [] }) => {
             Select Resume:
           </label>
 
-          <select
-            value={selectedIndex}
-            onChange={handleSelectChange}
-            className="select select-info bg-white w-[120px]"
-          >
-            {cvOptions.map((url, index) => (
-              <option key={index} value={index}>
-                CV {index + 1}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center justify-between gap-3">
+            {/* Trái: select + upload */}
+            <div className="flex items-center gap-3">
+              <select
+                value={selectedIndex}
+                onChange={handleSelectChange}
+                className="px-3 py-2 border border-gray-300 rounded-full text-sm text-gray-700 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition cursor-pointer hover:border-blue-400"
+              >
+                {cvOptions.map((url, index) => (
+                  <option key={index} value={index}>
+                    CV {index + 1}
+                  </option>
+                ))}
+              </select>
 
-          <button
-            className="btn btn-md btn-primary ml-4 mr-2"
-            onClick={() => fileInputRef.current.click()}
-          >
-            Upload CV
-          </button>
+              <button
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-medium shadow-md transition active:scale-95"
+                onClick={() => fileInputRef.current.click()}
+              >
+                Upload CV
+              </button>
+            </div>
+
+            {/* Phải: checkbox set default */}
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={
+                  cvOptions?.[selectedIndex] === userProfile?.defaultResume
+                }
+                onChange={() => handleSetDefault(cvOptions[selectedIndex])}
+                className="w-4 h-4 cursor-pointer"
+              />
+              <span className={"text-sm font-medium"}>
+                {cvOptions?.[selectedIndex] === userProfile?.defaultResume
+                  ? "Default CV"
+                  : "Set as default"}
+              </span>
+            </label>
+          </div>
 
           <input
             ref={fileInputRef}
@@ -103,11 +135,23 @@ const ResumeContent = ({ cvOptions = [] }) => {
 
           {numPages && (
             <div className="-mt-15 z-10 duration-300 opacity-0 group-hover:opacity-100  flex justify-center rounded-sm shadow-md items-center space-x-3 w-fit">
-              <button onClick={handlePrev} className="text-2xl px-6 py-4 hover:bg-black/10"> ‹ </button>
+              <button
+                onClick={handlePrev}
+                className="text-2xl px-6 py-4 hover:bg-black/10"
+              >
+                {" "}
+                ‹{" "}
+              </button>
               <span className="text-lg mt-1">
                 {pageNumber} of {numPages}
               </span>
-              <button onClick={handleNext} className="text-2xl px-6 py-4 hover:bg-black/10"> › </button>
+              <button
+                onClick={handleNext}
+                className="text-2xl px-6 py-4 hover:bg-black/10"
+              >
+                {" "}
+                ›{" "}
+              </button>
             </div>
           )}
         </div>

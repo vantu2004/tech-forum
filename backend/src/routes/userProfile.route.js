@@ -8,6 +8,7 @@ import {
   uploadUserCV,
   deleteUserCV,
   replaceUserCV,
+  setCVAsDefault,
 } from "../controllers/userProfile.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 
@@ -29,5 +30,6 @@ router.post(
 );
 router.delete("/resume", verifyToken, deleteUserCV);
 router.put("/resume", verifyToken, upload.single("resumeFile"), replaceUserCV);
+router.put("/resume/default", verifyToken, setCVAsDefault);
 
 export default router;

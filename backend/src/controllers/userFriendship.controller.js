@@ -178,7 +178,6 @@ export const getPeopleYouMayKnow = async (req, res) => {
 
     // Lọc ra các field không cần thiết
     const filteredSuggestions = suggestions.map((suggestion) => {
-
       return {
         _id: suggestion._id,
         total: suggestions.length,
@@ -200,7 +199,6 @@ export const getPeopleYouMayKnow = async (req, res) => {
     });
   }
 };
-
 
 export const addFriendRequest = async (req, res) => {
   try {

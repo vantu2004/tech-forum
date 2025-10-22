@@ -9,6 +9,7 @@ import PostComments from "./comment/PostComments";
 import { useUserProfileStore } from "../../../stores/useUserProfileStore";
 import CommentInput from "./comment/CommentInput";
 import ShowMoreText from "../../common/ShowMoreText.jsx";
+import { Link } from "react-router-dom";
 
 const PostItem = ({ post, onOpenImageViewer }) => {
   const [showComments, setShowComments] = useState(false);
@@ -56,20 +57,31 @@ const PostItem = ({ post, onOpenImageViewer }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm p-4">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-2">
+
+      <Link
+        to={
+          post.userId._id === userAuth._id
+            ? `/profile/${post.userId._id}`
+            : `/profile/user/${post.userId._id}`
+        }
+        className="flex items-center gap-2 mb-2 "
+      >
         {userAvatar ? (
           <img src={userAvatar} alt="User" className="w-10 h-10 rounded-full" />
         ) : (
           <FaCircleUser className="w-10 h-10 rounded-full text-gray-400" />
         )}
+
         <div>
-          <h3 className="font-semibold text-gray-800">{userName}</h3>
+          <h3 className="font-semibold text-gray-800 hover:text-blue-600 transition">
+            {userName}
+          </h3>
           <p className="text-xs text-gray-500">
             {userHeadline ? `${userHeadline} - ` : ""}Created at{" "}
             {formatDate(post.createdAt)}
           </p>
         </div>
-      </div>
+      </Link>
 
       {/* Nội dung */}
       <ShowMoreText text={post.desc || ""} maxWords={20} />

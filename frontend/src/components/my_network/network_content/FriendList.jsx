@@ -3,6 +3,7 @@ import { useUserFriendShipStore } from "./../../../stores/useUserFriendShipStore
 import NetworkConfirmModal from "./../../modal/NetworkConfirmModal";
 import { toast } from "react-hot-toast";
 import { FaCircleUser } from "react-icons/fa6";
+import { Link } from "react-router-dom";
 
 const FriendCard = ({ friend, type }) => {
   const { removeFriendship, sendFriendRequest, pendingSent } =
@@ -83,8 +84,11 @@ const FriendCard = ({ friend, type }) => {
         ) : (
           <FaCircleUser className="w-20 h-20 rounded-full text-gray-400 bg-white border-2 border-white" />
         )}
-
-        <p className="font-medium">{friend.profile?.name}</p>
+        <Link to={`/profile/user/${friend._id}`}>
+          <p className="font-medium hover:text-blue-600 transition">
+            {friend.profile?.name}
+          </p>
+        </Link>
         <p className="text-sm text-gray-600 mb-2 text-center">
           {friend.profile?.headline}
         </p>

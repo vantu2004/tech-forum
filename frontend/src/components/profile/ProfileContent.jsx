@@ -17,7 +17,6 @@ const ProfileContent = ({
   return (
     <div>
       <CoverPhoto onOpenInfomationModal={onOpenInfomationModal} />
-      <Action onOpenMessageModal={onOpenMessageModal} />
       <About onOpenAboutModal={onOpenAboutModal} />
       <Skill onOpenSkillModal={onOpenSkillModal} />
       <Experience onOpenExperienceModal={onOpenExperienceModal} />

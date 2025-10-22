@@ -16,7 +16,7 @@ const Activity = ({ id, onOpenPostedModal }) => {
       {isLoading ? (
         <p className="text-gray-400 text-sm">Loading...</p>
       ) : posts.length === 0 ? (
-        <p className="text-gray-400 text-sm">No activities yet</p>
+        <p className="text-gray-500 text-sm italic">No recent activities.</p>
       ) : (
         <div className="flex gap-5 overflow-x-auto pb-3">
           {posts.map((post) => {

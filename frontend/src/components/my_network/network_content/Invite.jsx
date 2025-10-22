@@ -3,6 +3,7 @@ import { useUserFriendShipStore } from "./../../../stores/useUserFriendShipStore
 import NetworkConfirmModal from "../../modal/NetworkConfirmModal";
 import toast from "react-hot-toast";
 import { FaCircleUser } from "react-icons/fa6";
+import { Link } from "react-router-dom";
 
 const Invite = () => {
   const {
@@ -102,9 +103,11 @@ const Invite = () => {
             )}
 
             <div className="flex flex-col justify-center">
-              <p className="font-medium">
-                {invite?.requester?.profile?.name || "Unknown"}
-              </p>
+              <Link to={`/profile/user/${invite.requester._id}`}>
+                <p className="font-medium hover:text-blue-600 transition">
+                  {invite?.requester?.profile?.name || "Unknown"}
+                </p>
+              </Link>
 
               {invite?.requester?.profile?.headline && (
                 <p className="text-sm text-gray-600">

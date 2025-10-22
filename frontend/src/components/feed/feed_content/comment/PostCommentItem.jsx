@@ -3,6 +3,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useUserAuthStore } from "../../../../stores/useUserAuthStore";
 import { useCommentStore } from "../../../../stores/useCommentStore";
 import CommentInput from "./CommentInput";
+import { Link } from "react-router-dom";
 
 const INDENT_PX = 24; // khoảng thụt mỗi cấp
 
@@ -78,7 +79,17 @@ const PostCommentItem = ({ comment, depth = 0, parentName = null }) => {
         {/* Bubble */}
         <div className="flex-1">
           <div className="rounded-xl px-3 py-2 bg-gray-100">
-            <h4 className="text-sm font-semibold text-gray-800">{name}</h4>
+            <Link
+              to={
+                comment.userId._id === userAuth._id
+                  ? `/profile/${comment.userId._id}`
+                  : `/profile/user/${comment.userId._id}`
+              }
+            >
+              <h4 className="text-sm font-semibold text-gray-800 hover:text-blue-600 transition">
+                {name}
+              </h4>
+            </Link>
 
             {comment?.text && (
               <p className="text-sm text-gray-800 mt-1">

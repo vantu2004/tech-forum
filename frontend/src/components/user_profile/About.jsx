@@ -14,9 +14,11 @@ const About = () => {
         {/* Loading */}
         {isLoading ? (
           <p className="text-gray-500 italic text-sm">Loading profile...</p>
+        ) : userProfileById?.about ? (
+          <p className="text-gray-700">{userProfileById.about}</p>
         ) : (
-          <p className="text-gray-700">
-            {userProfileById?.about || "Write something about yourself..."}
+          <p className="text-gray-500 text-sm italic">
+            This user hasn't added an "About" section yet.
           </p>
         )}
       </div>

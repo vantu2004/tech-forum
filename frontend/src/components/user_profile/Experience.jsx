@@ -15,7 +15,9 @@ const Experience = () => {
         {isLoading ? (
           <p className="text-gray-500 text-sm">Loading experiences...</p>
         ) : userExperiences.length === 0 ? (
-          <p className="text-gray-500 text-sm">No experiences added yet.</p>
+          <p className="text-gray-500 text-sm italic">
+            No work experiences have been added yet.
+          </p>
         ) : (
           userExperiences.map((exp) => (
             <div

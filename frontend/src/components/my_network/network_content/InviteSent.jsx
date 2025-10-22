@@ -3,6 +3,7 @@ import { useUserFriendShipStore } from "../../../stores/useUserFriendShipStore";
 import NetworkConfirmModal from "../../modal/NetworkConfirmModal";
 import toast from "react-hot-toast";
 import { FaCircleUser } from "react-icons/fa6";
+import { Link } from "react-router-dom";
 
 const InviteSent = () => {
   const { fetchPendingSent, pendingSent, isLoading, cancelFriendRequest } =
@@ -75,9 +76,11 @@ const InviteSent = () => {
               )}
 
               <div className="flex flex-col justify-center">
-                <p className="font-medium">
-                  {invite.receiver?.profile?.name || "Unknown"}
-                </p>
+                <Link to={`/profile/user/${invite.receiver._id}`}>
+                  <p className="font-medium hover:text-blue-600 transition">
+                    {invite.receiver?.profile?.name || "Unknown"}
+                  </p>
+                </Link>
 
                 {invite.receiver?.profile?.headline && (
                   <p className="text-sm text-gray-600">
@@ -92,7 +95,6 @@ const InviteSent = () => {
                 )}
               </div>
             </div>
-
             {/* Right: cancel button */}
             <div className="flex gap-2 mt-3 md:mt-0 w-full md:w-auto">
               <button

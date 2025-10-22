@@ -28,7 +28,7 @@ const Skill = ({ onOpenSkillModal }) => {
           </div>
         ) : (
           <p className="text-gray-500 text-sm italic">
-            No skills added yet. Click edit to add your skills.
+            No skills have been added yet.
           </p>
         )}
       </div>

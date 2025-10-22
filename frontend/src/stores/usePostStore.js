@@ -5,16 +5,27 @@ export const usePostStore = create((set) => ({
   posts: [],
   isLoading: false,
 
+  // phân trang
+  page: 1,
+  hasMore: true,
+
   setPosts: (posts) => set({ posts }),
 
-  fetchPosts: async () => {
+  fetchPosts: async (page = 1, limit = 5, append = false) => {
     set({ isLoading: true });
     try {
-      const { data } = await axiosInstance.get("/posts");
-      set({ posts: data.posts });
+      const { data } = await axiosInstance.get(
+        `/posts?page=${page}&limit=${limit}`
+      );
+
+      set((state) => ({
+        posts: append ? [...state.posts, ...data.posts] : data.posts,
+        page,
+        hasMore: data.hasMore,
+      }));
     } catch (error) {
       set({ posts: [] });
-      throw new Error(error.response?.data?.error || "Error fetching posts");
+      console.error(error);
     } finally {
       set({ isLoading: false });
     }

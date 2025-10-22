@@ -111,28 +111,35 @@ export const likeDislikePost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5; // 5 post mỗi lần
+    const skip = (page - 1) * limit;
+
     const posts = await Post.find()
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .populate({
-        path: "userId", // populate từ Post → UserAuth
-        select: "email profile", // chọn trường cần lấy
+        path: "userId",
+        select: "email profile",
         populate: {
-          path: "profile", // populate tiếp từ UserAuth → UserProfile
-          select: "name headline profile_pic", // chỉ lấy field cần thiết
+          path: "profile",
+          select: "name headline profile_pic",
         },
       })
-      .populate("likes", "email"); // nếu muốn populate thêm mảng likes
+      .populate("likes", "email");
+
+    const total = await Post.countDocuments();
 
     res.status(200).json({
       success: true,
       posts,
+      total,
+      hasMore: page * limit < total, // còn bài chưa tải
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+    res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
 

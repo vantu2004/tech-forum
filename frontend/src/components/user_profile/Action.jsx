@@ -1,17 +1,26 @@
 import { FiSend, FiUserX, FiShare2, FiFileText } from "react-icons/fi";
+import { useUserProfileStore } from "../../stores/useUserProfileStore";
 
-const Action = ({ onOpenMessageModal }) => {
+const Action = ({ onOpenMessageModal, onOpenCvModel }) => {
+  const { userProfileById } = useUserProfileStore();
+
   return (
     <div className="flex flex-wrap gap-3 mt-28 justify-center sm:justify-end">
-      <button className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 border rounded-full text-gray-700 hover:bg-gray-50 shadow-sm transition">
-        <FiFileText />
-        <span>View CV</span>
-      </button>
-
       {/* <button className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 border rounded-full text-gray-700 hover:bg-gray-50 shadow-sm transition">
         <FiShare2 />
         <span>Share</span>
       </button> */}
+
+      {/* View CV */}
+      {userProfileById?.defaultResume && (
+        <button
+          onClick={onOpenCvModel}
+          className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 border rounded-full text-gray-700 hover:bg-gray-50 shadow-sm transition"
+        >
+          <FiFileText />
+          <span>View CV</span>
+        </button>
+      )}
 
       {/* Message */}
       <button

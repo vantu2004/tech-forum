@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { FaCircleUser } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 
-const InviteSent = () => {
+const InviteSent = ({ setTotalSent }) => {
   const { fetchPendingSent, pendingSent, isLoading, cancelFriendRequest } =
     useUserFriendShipStore();
 
@@ -16,6 +16,8 @@ const InviteSent = () => {
   useEffect(() => {
     fetchPendingSent(currentPage);
   }, [fetchPendingSent, currentPage]);
+
+  setTotalSent(pendingSent.total);
 
   const totalPages = pendingSent.totalPages || 1;
 

@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { FaCircleUser } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 
-const Invite = () => {
+const Invite = ({ setTotalReceived }) => {
   const {
     fetchPendingReceived,
     pendingReceived,
@@ -23,6 +23,8 @@ const Invite = () => {
   useEffect(() => {
     fetchPendingReceived(currentPage);
   }, [fetchPendingReceived, currentPage]);
+
+  setTotalReceived(pendingReceived.total);
 
   const totalPages = pendingReceived.totalPages || 1;
 

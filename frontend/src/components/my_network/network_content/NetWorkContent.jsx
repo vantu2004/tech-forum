@@ -4,7 +4,11 @@ import InviteSent from "./InviteSent";
 import { useUserFriendShipStore } from "./../../../stores/useUserFriendShipStore";
 import { useEffect } from "react";
 
-const NetWorkContent = () => {
+const NetWorkContent = ({
+  setTotalSent,
+  setTotalReceived,
+  setTotalConnections,
+}) => {
   const {
     fetchAcceptedFriends,
     fetchPeopleYouMayKnow,
@@ -17,10 +21,16 @@ const NetWorkContent = () => {
     fetchPeopleYouMayKnow();
   }, [fetchAcceptedFriends, fetchPeopleYouMayKnow]);
 
+  useEffect(() => {
+    if (Array.isArray(accepted)) {
+      setTotalConnections(accepted.length);
+    }
+  }, [accepted, setTotalConnections]);
+
   return (
     <main className="flex-1 space-y-6">
-      <InviteSent />
-      <Invite />
+      <InviteSent setTotalSent={setTotalSent} />
+      <Invite setTotalReceived={setTotalReceived} />
 
       <div className="space-y-6">
         {/* Danh sách Connections */}

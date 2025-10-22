@@ -1,14 +1,14 @@
-import { FiSend, FiUserX, FiShare2, FiChevronDown } from "react-icons/fi";
+import { FiSend, FiUserX, FiShare2, FiFileText } from "react-icons/fi";
 
 const Action = ({ onOpenMessageModal }) => {
   return (
     <div className="flex flex-wrap gap-3 mt-28 justify-center sm:justify-end">
-      {/* <button className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 border rounded-full text-gray-700 hover:bg-gray-50 shadow-sm transition">
-        <span>Open to</span>
-        <FiChevronDown />
+      <button className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 border rounded-full text-gray-700 hover:bg-gray-50 shadow-sm transition">
+        <FiFileText />
+        <span>View CV</span>
       </button>
 
-      <button className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 border rounded-full text-gray-700 hover:bg-gray-50 shadow-sm transition">
+      {/* <button className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 border rounded-full text-gray-700 hover:bg-gray-50 shadow-sm transition">
         <FiShare2 />
         <span>Share</span>
       </button> */}

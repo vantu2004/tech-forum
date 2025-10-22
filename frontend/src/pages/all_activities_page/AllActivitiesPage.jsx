@@ -5,14 +5,22 @@ import { useEffect, useState } from "react";
 import ImageViewerModal from "../../components/modal/ImageViewerModal.jsx";
 import { usePostStore } from "../../stores/usePostStore.js";
 import { useUserProfileStore } from "../../stores/useUserProfileStore.js";
+import { useParams } from "react-router-dom";
 
 const AllActivities = () => {
-  const { isLoading: profileLoading, userProfile } = useUserProfileStore();
-  const { isLoading, posts, getPostsByUser } = usePostStore();
+  const id = useParams().id;
+
+  const {
+    isLoading: profileLoading,
+    userProfileById,
+    fetchUserProfileByUserId,
+  } = useUserProfileStore();
+  const { isLoading, posts, fetchPostsByUserId } = usePostStore();
 
   useEffect(() => {
-    getPostsByUser();
-  }, [getPostsByUser]);
+    fetchUserProfileByUserId(id);
+    fetchPostsByUserId(id);
+  }, [id, fetchUserProfileByUserId, fetchPostsByUserId]);
 
   // gom tất cả data viewer vào 1 state
   const [viewer, setViewer] = useState({
@@ -32,7 +40,10 @@ const AllActivities = () => {
     <div className="container mx-auto max-w-7xl px-6 sm:px-6 lg:px-6 flex gap-6 mt-20 mb-6">
       {/* Left Sidebar */}
       <div className="hidden lg:block w-1/4">
-        <ProfileInfoCard isLoading={profileLoading} userProfile={userProfile} />
+        <ProfileInfoCard
+          isLoading={profileLoading}
+          userProfile={userProfileById}
+        />
       </div>
 
       {/* Middle Feed */}

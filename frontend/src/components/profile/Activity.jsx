@@ -90,7 +90,7 @@ const Activity = ({ id, onOpenPostedModal }) => {
       {!isLoading && posts.length > 0 && (
         <div className="text-center mt-4">
           <Link
-            to={`/profile/activities`}
+            to={`/profile/activities/${id}`}
             className="text-blue-500 font-medium hover:text-blue-700 transition"
           >
             Show all posts →

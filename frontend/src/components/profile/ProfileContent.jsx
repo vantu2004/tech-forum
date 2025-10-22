@@ -7,7 +7,6 @@ import Skill from "./Skill";
 
 const ProfileContent = ({
   onOpenInfomationModal,
-  onOpenMessageModal,
   onOpenAboutModal,
   onOpenSkillModal,
   onOpenExperienceModal,

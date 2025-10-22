@@ -183,7 +183,7 @@ function App() {
             }
           />
           <Route
-            path="/profile/activities"
+            path="/profile/activities/:id"
             element={
               <ProtectedRoute>
                 {" "}

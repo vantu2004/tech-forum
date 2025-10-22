@@ -96,7 +96,6 @@ const ProfilePage = () => {
       <div className="flex-1">
         <ProfilePageContent
           onOpenInfomationModal={handleOpenInfomationModal}
-          onOpenMessageModal={handleOpenMessageModal}
           onOpenAboutModal={handleOpenAboutModal}
           onOpenSkillModal={handleOpenSkillModal}
           onOpenExperienceModal={handleOpenExperienceModal}

@@ -10,7 +10,7 @@ import { useUserExperienceStore } from "../../stores/useUserExperienceStore";
 import { usePostStore } from "../../stores/usePostStore";
 import { useUserSkillStore } from "../../stores/useUserSkillStore";
 
-const ProfileContent = ({ id }) => {
+const ProfileContent = ({ id, onOpenPostedModal }) => {
   const { fetchUserProfileByUserId } = useUserProfileStore();
   const { fetchUserExperiencesByUserId } = useUserExperienceStore();
   const { fetchUserSkillsByUserId } = useUserSkillStore();
@@ -36,7 +36,7 @@ const ProfileContent = ({ id }) => {
       <About />
       <Skill />
       <Experience />
-      <Activity id={id} />
+      <Activity id={id} onOpenPostedModal={onOpenPostedModal} />
     </div>
   );
 };

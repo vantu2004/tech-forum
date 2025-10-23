@@ -17,4 +17,16 @@ export const useConversationStore = create((set) => ({
       set({ isLoading: false });
     }
   },
+
+  createConversation: async (receiverId, message) => {
+    try {
+      if (!message) return;
+      await axiosInstance.post("/conversations", {
+        receiverId,
+        message,
+      });
+    } catch (error) {
+      console.error("Error creating conversation:", error);
+    }
+  },
 }));

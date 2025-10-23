@@ -30,7 +30,6 @@ const ProfilePage = () => {
   }, [fetchUserExperiences, fetchUserProfile, fetchUserSkills, getPostsByUser]);
 
   const [openInfomationModal, setOpenInfomationModal] = useState(false);
-  const [openMessageModal, setOpenMessageModal] = useState(false);
   const [openAboutModal, setOpenAboutModal] = useState(false);
   const [openSkillModal, setOpenSkillModal] = useState(false);
   const [openExperienceModal, setOpenExperienceModal] = useState(false);
@@ -75,10 +74,6 @@ const ProfilePage = () => {
   const handleCloseExperienceModal = () => {
     setSelectedExperience(null); // reset khi đóng
     setOpenExperienceModal(false);
-  };
-
-  const handleOpenMessageModal = () => {
-    setOpenMessageModal(!openMessageModal);
   };
 
   const handleOpenPostedModal = (post = null) => {
@@ -129,8 +124,6 @@ const ProfilePage = () => {
           experience={selectedExperience}
         />
       )}
-
-      {openMessageModal && <MessageModal onClose={handleOpenMessageModal} />}
 
       {openPostedModal && (
         <PostedModal

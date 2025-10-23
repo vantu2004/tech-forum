@@ -3,14 +3,20 @@ import { useState } from "react";
 import Modal from "./Modal";
 import { FiSend } from "react-icons/fi";
 import logo from "../../assets/navbar/logo.png";
+import { useUserProfileStore } from "../../stores/useUserProfileStore";
+import { useConversationStore } from "../../stores/useConversationStore";
 
-const MessageModal = ({ onClose, user }) => {
+const MessageModal = ({ onClose }) => {
   const [message, setMessage] = useState("");
 
-  const handleSend = () => {
+  const { userProfileById } = useUserProfileStore();
+  const { createConversation } = useConversationStore();
+
+  const handleSend = async () => {
     if (!message.trim()) return;
-    console.log("Message sent:", { to: user.name, message });
-    setMessage("");
+
+    await createConversation(userProfileById.userId, message);
+
     onClose();
   };
 
@@ -24,9 +30,12 @@ const MessageModal = ({ onClose, user }) => {
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
-          <h2 className="text-lg font-bold text-gray-800">"Nguyễn Văn A"</h2>
+          <h2 className="text-lg font-bold text-gray-800">
+            {userProfileById?.name}
+          </h2>
+          <p className="text-sm text-gray-500">{userProfileById?.headline}</p>
           <p className="text-sm text-gray-500">
-            Fullstack Developer | MERN Stack | Open Source Contributor
+            {userProfileById?.curr_company}
           </p>
         </div>
       </div>

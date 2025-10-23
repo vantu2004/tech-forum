@@ -3,7 +3,6 @@ import { FiSmile, FiPaperclip, FiSend, FiX } from "react-icons/fi";
 import { useMessageStore } from "../../stores/useMessageStore.js";
 
 const ChatInput = ({ activeChat }) => {
-  console.log(activeChat);
   const { sendMessage, isSendLoading } = useMessageStore();
 
   const [message, setMessage] = useState("");

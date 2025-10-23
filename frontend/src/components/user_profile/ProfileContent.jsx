@@ -5,11 +5,19 @@ import Activity from "./Activity";
 import Action from "./Action";
 import Skill from "./Skill";
 
-const ProfileContent = ({ id, onOpenPostedModal, onOpenCvModel }) => {
+const ProfileContent = ({
+  id,
+  onOpenPostedModal,
+  onOpenCvModel,
+  onOpenMessageModal,
+}) => {
   return (
     <div>
       <CoverPhoto />
-      <Action onOpenCvModel={onOpenCvModel} />
+      <Action
+        onOpenCvModel={onOpenCvModel}
+        onOpenMessageModal={onOpenMessageModal}
+      />
       <About />
       <Skill />
       <Experience />

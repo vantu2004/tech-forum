@@ -6,19 +6,21 @@ import mongoose from "mongoose";
 export const createConversation = async (req, res) => {
   try {
     const senderId = req.userId;
-    const { receiverId, message, picture } = req.body;
+    const { receiverId, message } = req.body;
 
-    // Validate
-    if (!receiverId || (!message && !picture)) {
+    // Validate input
+    if (!receiverId || !message) {
       return res
         .status(400)
-        .json({ success: false, message: "receiverId or content is missing." });
+        .json({ success: false, message: "receiverId or message is missing." });
     }
+
     if (String(receiverId) === String(senderId)) {
       return res
         .status(400)
         .json({ success: false, message: "You cannot chat with yourself." });
     }
+
     if (!mongoose.isValidObjectId(receiverId)) {
       return res
         .status(400)
@@ -32,29 +34,23 @@ export const createConversation = async (req, res) => {
         .json({ success: false, message: "Receiver not found." });
     }
 
-    const existingConversation = await Conversation.findOne({
+    // Check if conversation already exists
+    let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
     });
-    if (!existingConversation) {
-      const newConversation = new Conversation({
+
+    if (!conversation) {
+      conversation = await Conversation.create({
         participants: [senderId, receiverId],
       });
-      const savedConversation = await newConversation.save();
-
-      const newMessage = new Message({
-        conversationId: savedConversation._id,
-        senderId,
-        message: message,
-      });
-      await newMessage.save();
-    } else {
-      const newMessage = new Message({
-        conversationId: existingConversation._id,
-        senderId,
-        message: message,
-      });
-      await newMessage.save();
     }
+
+    // Create and save message
+    await Message.create({
+      conversationId: conversation._id,
+      senderId,
+      message,
+    });
 
     res
       .status(200)

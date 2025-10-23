@@ -4,6 +4,7 @@ import { usePostStore } from "../../stores/usePostStore";
 import { useUserAuthStore } from "../../stores/useUserAuthStore"; // lấy user hiện tại
 import { formatDate } from "../../utils/date";
 import ShowMoreText from "../common/ShowMoreText.jsx";
+import { FaCircleUser } from "react-icons/fa6";
 
 const Activity = ({ id, onOpenPostedModal }) => {
   const { isLoading, posts } = usePostStore();
@@ -35,10 +36,14 @@ const Activity = ({ id, onOpenPostedModal }) => {
               >
                 {/* Header */}
                 <div className="flex items-center gap-3 p-4 border-b border-gray-200">
-                  <img
-                    src={post.userId.profile.profile_pic}
-                    className="w-11 h-11 rounded-full"
-                  />
+                  {post.userId?.profile?.profile_pic ? (
+                    <img
+                      src={post.userId.profile.profile_pic}
+                      className="w-11 h-11 rounded-full"
+                    />
+                  ) : (
+                    <FaCircleUser className="w-11 h-11 rounded-full text-gray-400 bg-white border-white" />
+                  )}
                   <div>
                     <h3 className="font-semibold text-sm">
                       {post.userId.profile.name}

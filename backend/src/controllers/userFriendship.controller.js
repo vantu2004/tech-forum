@@ -132,6 +132,7 @@ export const getAcceptedFriendships = async (req, res) => {
 
       return {
         friendShipId: fs._id,
+        // id của người nhận
         _id: friend._id,
         email: friend.email,
         profile: friend.profile,

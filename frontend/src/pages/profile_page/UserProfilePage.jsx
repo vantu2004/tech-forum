@@ -10,6 +10,8 @@ import { useUserExperienceStore } from "../../stores/useUserExperienceStore";
 import { usePostStore } from "../../stores/usePostStore";
 import { useUserSkillStore } from "../../stores/useUserSkillStore";
 import CvModel from "../../components/modal/CvModel.jsx";
+import { useUserFriendShipStore } from "../../stores/useUserFriendShipStore.js";
+import MessageModal from "../../components/modal/MessageModel.jsx";
 
 const UserProfilePage = () => {
   const { id } = useParams();
@@ -18,18 +20,26 @@ const UserProfilePage = () => {
   const { fetchUserExperiencesByUserId } = useUserExperienceStore();
   const { fetchUserSkillsByUserId } = useUserSkillStore();
   const { fetchPostsByUserId } = usePostStore();
+  const { fetchAcceptedFriends, fetchPendingSent, fetchPendingReceived } =
+    useUserFriendShipStore();
 
   useEffect(() => {
     fetchUserProfileByUserId(id);
     fetchUserExperiencesByUserId(id);
     fetchUserSkillsByUserId(id);
     fetchPostsByUserId(id);
+    fetchAcceptedFriends();
+    fetchPendingSent();
+    fetchPendingReceived();
   }, [
     id,
     fetchUserProfileByUserId,
     fetchUserExperiencesByUserId,
     fetchUserSkillsByUserId,
     fetchPostsByUserId,
+    fetchAcceptedFriends,
+    fetchPendingSent,
+    fetchPendingReceived,
   ]);
 
   // dùng cho việc lưu post khi mở viewer
@@ -45,6 +55,7 @@ const UserProfilePage = () => {
 
   const [openPostedModal, setOpenPostedModal] = useState(false);
   const [openCvModel, setOpenCvModel] = useState(false);
+  const [openMessageModal, setOpenMessageModal] = useState(false);
 
   // nhận images, index được click, và post
   const openImageViewer = (images = [], initialIndex = 0, post = null) =>
@@ -66,6 +77,10 @@ const UserProfilePage = () => {
     setOpenCvModel(true);
   };
 
+  const handleOpenMessageModal = () => {
+    setOpenMessageModal(!openMessageModal);
+  };
+
   return (
     <div className="container mx-auto max-w-7xl px-6 sm:px-6 lg:px-6 flex gap-6 mt-20 mb-6 text-black">
       <div className="flex-1">
@@ -73,6 +88,7 @@ const UserProfilePage = () => {
           id={id}
           onOpenPostedModal={handleOpenPostedModal}
           onOpenCvModel={handleOpenCvModel}
+          onOpenMessageModal={handleOpenMessageModal}
         />
       </div>
       <div className="hidden lg:block w-1/4">
@@ -103,6 +119,8 @@ const UserProfilePage = () => {
           cv={userProfileById?.defaultResume}
         />
       )}
+
+      {openMessageModal && <MessageModal onClose={handleOpenMessageModal} />}
     </div>
   );
 };

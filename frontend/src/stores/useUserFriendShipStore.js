@@ -48,6 +48,7 @@ export const useUserFriendShipStore = create((set, get) => ({
       set({ isLoading: false });
     }
   },
+
   fetchPendingReceived: async (page = 1) => {
     set({ isLoading: true });
     try {
@@ -135,7 +136,7 @@ export const useUserFriendShipStore = create((set, get) => ({
   declineFriendRequest: async (friendshipId) => {
     try {
       const { data } = await axiosInstance.delete("/users/friends/decline", {
-        data: {friendshipId}, // DELETE request body phải nằm trong trường data
+        data: { friendshipId }, // DELETE request body phải nằm trong trường data
       });
       await get().fetchPendingReceived();
       return data;
@@ -147,7 +148,7 @@ export const useUserFriendShipStore = create((set, get) => ({
   removeFriendship: async (friendshipId) => {
     try {
       const { data } = await axiosInstance.delete("/users/friends/remove", {
-        data: {friendshipId}, // DELETE request body phải nằm trong trường data
+        data: { friendshipId }, // DELETE request body phải nằm trong trường data
       });
       await get().fetchAcceptedFriends();
       return data;

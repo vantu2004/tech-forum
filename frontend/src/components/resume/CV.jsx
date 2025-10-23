@@ -35,7 +35,7 @@ const CV = ({ selectedCv }) => {
       </Document>
 
       {numPages && (
-        <div className="-mt-15 z-10 duration-300 opacity-0 group-hover:opacity-100  flex justify-center rounded-sm shadow-md items-center space-x-3 w-fit">
+        <div className="-mt-15 z-10 duration-300 opacity-0 group-hover:opacity-100 flex justify-center rounded-sm shadow-md items-center space-x-3 w-fit">
           <button
             onClick={handlePrev}
             className="text-2xl px-6 py-4 hover:bg-black/10"

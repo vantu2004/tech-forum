@@ -85,7 +85,7 @@ export const getConversation = async (req, res) => {
         select: "email", // chỉ lấy email, tránh kéo password/token
         populate: {
           path: "profile", // Virtual populate: UserAuth.profile -> UserProfile
-          select: "name profile_pic",
+          select: "name profile_pic headline",
           options: { lean: true }, // trả profile dạng plain object
         },
         options: { lean: true }, // trả UserAuth dạng plain object

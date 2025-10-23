@@ -1,5 +1,6 @@
 import ProfileInfoCard from "../../components/common/ProfileInfoCard";
 import SuggestionCard from "../../components/common/SuggestionCard";
+import { useUserProfileStore } from "../../stores/useUserProfileStore";
 
 const notifications = [
   {
@@ -37,11 +38,13 @@ const notifications = [
 ];
 
 const NotificationPage = () => {
+  const { isLoading, userProfile } = useUserProfileStore();
+
   return (
     <div className="container mx-auto max-w-7xl px-6 sm:px-6 lg:px-6 flex gap-6 mt-20 mb-6">
       {/* Left Sidebar */}
       <div className="hidden lg:block w-1/4">
-        <ProfileInfoCard />
+        <ProfileInfoCard isLoading={isLoading} userProfile={userProfile} />
       </div>
 
       {/* Middle Feed */}

@@ -72,9 +72,9 @@ const SideBar = ({ activeChat, setActiveChat }) => {
                   </p>
                   <p
                     className="text-xs text-gray-500 truncate max-w-[180px]"
-                    title={friend?.headline}
+                    title={friend?.profile?.headline}
                   >
-                    {friend?.headline}
+                    {friend?.profile?.headline}
                   </p>
                 </div>
               </div>

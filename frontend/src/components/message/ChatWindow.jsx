@@ -1,15 +1,9 @@
-import {
-  FiMoreVertical,
-  FiSend,
-  FiPaperclip,
-  FiSmile,
-  FiArrowLeft,
-  FiUser,
-} from "react-icons/fi";
+import { FiMoreVertical, FiArrowLeft, FiUser } from "react-icons/fi";
 import { useEffect } from "react";
 import { useMessageStore } from "../../stores/useMessageStore.js";
 import { useUserProfileStore } from "../../stores/useUserProfileStore.js";
 import ChatInput from "./ChatInput.jsx";
+import { Link } from "react-router-dom";
 
 const ChatWindow = ({ activeChat, setActiveChat }) => {
   const { userProfile, fetchUserProfile } = useUserProfileStore();
@@ -61,10 +55,14 @@ const ChatWindow = ({ activeChat, setActiveChat }) => {
               )}
 
               <div>
-                <p className="font-semibold text-gray-800 text-sm md:text-base">
-                  {friend?.profile?.name || "Unknown"}
+                <Link to={`/profile/user/${friend._id}`}>
+                  <p className="font-semibold text-gray-800 text-sm md:text-base hover:text-blue-600 transition">
+                    {friend?.profile?.name || "Unknown"}
+                  </p>
+                </Link>
+                <p className="text-xs text-gray-500">
+                  {friend?.profile?.headline}
                 </p>
-                <p className="text-xs text-gray-500">{friend?.headline}</p>
               </div>
             </div>
             <button className="p-1 rounded hover:bg-gray-100">

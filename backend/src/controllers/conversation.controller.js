@@ -27,17 +27,25 @@ export const createConversation = async (req, res) => {
         .json({ success: false, message: "Invalid receiverId." });
     }
 
-    const receiver = await UserAuth.findById(receiverId).select("_id");
+    const receiver = await UserAuth.findById(receiverId)
+      .select("email")
+      .populate({
+        path: "profile",
+        select: "name profile_pic headline",
+        options: { lean: true },
+      })
+      .lean();
+
     if (!receiver) {
       return res
         .status(404)
         .json({ success: false, message: "Receiver not found." });
     }
 
-    // Check if conversation already exists
+    // Check if conversation exists
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
-    });
+    }).lean();
 
     if (!conversation) {
       conversation = await Conversation.create({
@@ -45,16 +53,44 @@ export const createConversation = async (req, res) => {
       });
     }
 
-    // Create and save message
-    await Message.create({
+    // Create message
+    const newMessage = await Message.create({
       conversationId: conversation._id,
       senderId,
       message,
     });
 
-    res
-      .status(200)
-      .json({ success: true, message: "Message sent successfully" });
+    // Cập nhật lastMessage
+    await Conversation.findByIdAndUpdate(conversation._id, {
+      lastMessage: newMessage._id,
+      updatedAt: Date.now(),
+    });
+
+    // Populate conversation (kèm lastMessage)
+    const populatedConversation = await Conversation.findById(conversation._id)
+      .populate({
+        path: "participants",
+        select: "email",
+        populate: {
+          path: "profile",
+          select: "name profile_pic headline",
+        },
+      })
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "senderId",
+          select: "email profile",
+          populate: { path: "profile", select: "name profile_pic" },
+        },
+      })
+      .lean();
+
+    res.status(201).json({
+      success: true,
+      message: "Conversation created successfully",
+      conversation: populatedConversation,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -81,16 +117,22 @@ export const getConversation = async (req, res) => {
     })
       .sort({ updatedAt: -1 })
       .populate({
-        path: "participants", // participants là ref tới UserAuth
-        select: "email", // chỉ lấy email, tránh kéo password/token
+        path: "participants",
+        select: "email",
         populate: {
-          path: "profile", // Virtual populate: UserAuth.profile -> UserProfile
+          path: "profile",
           select: "name profile_pic headline",
-          options: { lean: true }, // trả profile dạng plain object
         },
-        options: { lean: true }, // trả UserAuth dạng plain object
       })
-      .lean(); // trả conv dạng plain object
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "senderId",
+          select: "email profile",
+          populate: { path: "profile", select: "name profile_pic" },
+        },
+      })
+      .lean();
 
     // 3) Trả về danh sách conversation đã kèm thông tin email + profile
     res.status(200).json({ success: true, conversations });

@@ -4,10 +4,14 @@ import { useMessageStore } from "../../stores/useMessageStore.js";
 import { useUserProfileStore } from "../../stores/useUserProfileStore.js";
 import ChatInput from "./ChatInput.jsx";
 import { Link } from "react-router-dom";
+import { useRef } from "react";
 
 const ChatWindow = ({ activeChat, setActiveChat }) => {
   const { userProfile, fetchUserProfile } = useUserProfileStore();
   const { messages, isFetchLoading, fetchMessages } = useMessageStore();
+
+  // scroll to bottom khi có tin nhắn mới
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     fetchUserProfile();
@@ -16,6 +20,13 @@ const ChatWindow = ({ activeChat, setActiveChat }) => {
       fetchMessages(activeChat._id); // fetch theo conversationId
     }
   }, [activeChat, fetchMessages, fetchUserProfile]);
+
+  // Tự động scroll khi messages thay đổi
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   // Tìm người bạn còn lại (trong participants)
   const friend =
@@ -65,9 +76,6 @@ const ChatWindow = ({ activeChat, setActiveChat }) => {
                 </p>
               </div>
             </div>
-            <button className="p-1 rounded hover:bg-gray-100">
-              <FiMoreVertical />
-            </button>
           </div>
 
           {/* Messages */}
@@ -79,80 +87,83 @@ const ChatWindow = ({ activeChat, setActiveChat }) => {
                 No messages yet
               </div>
             ) : (
-              messages.map((msg) => {
-                const isMine = msg.senderId._id === userProfile?.userId;
-                return (
-                  <div
-                    key={msg._id}
-                    className={`flex items-start gap-2 ${
-                      isMine ? "justify-end" : ""
-                    }`}
-                  >
-                    {/* Avatar của người gửi */}
-                    {!isMine && (
-                      <>
-                        {msg.senderId.profile?.profile_pic ? (
-                          <img
-                            src={msg.senderId.profile.profile_pic}
-                            alt={msg.senderId.profile?.name}
-                            className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <FiUser className="text-gray-500 text-sm" />
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    {/* Nội dung tin nhắn */}
+              <>
+                {messages.map((msg) => {
+                  const isMine = msg.senderId._id === userProfile?.userId;
+                  return (
                     <div
-                      className={`flex flex-col ${
-                        isMine ? "items-end" : "items-start"
+                      key={msg._id}
+                      className={`flex items-start gap-2 ${
+                        isMine ? "justify-end" : ""
                       }`}
                     >
-                      {/* Nếu có ảnh */}
-                      {msg.picture && (
-                        <img
-                          src={msg.picture}
-                          alt="message"
-                          className="max-w-xs md:max-w-sm rounded-xl border border-gray-200 shadow-sm"
-                        />
+                      {/* Avatar của người gửi */}
+                      {!isMine && (
+                        <>
+                          {msg.senderId.profile?.profile_pic ? (
+                            <img
+                              src={msg.senderId.profile.profile_pic}
+                              alt={msg.senderId.profile?.name}
+                              className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                              <FiUser className="text-gray-500 text-sm" />
+                            </div>
+                          )}
+                        </>
                       )}
 
-                      {/* Nếu có text */}
-                      {msg.message && (
-                        <div
-                          className={`mt-1 max-w-[100%] p-2 md:p-3 rounded-2xl shadow text-sm md:text-base border border-gray-100 ${
-                            isMine
-                              ? "bg-blue-600 text-white rounded-br-none"
-                              : "bg-white text-gray-700 rounded-bl-none"
-                          }`}
-                        >
-                          {msg.message}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Avatar của mình */}
-                    {isMine && (
-                      <>
-                        {userProfile?.profile_pic ? (
+                      {/* Nội dung tin nhắn */}
+                      <div
+                        className={`flex flex-col ${
+                          isMine ? "items-end" : "items-start"
+                        }`}
+                      >
+                        {/* Nếu có ảnh */}
+                        {msg.picture && (
                           <img
-                            src={userProfile.profile_pic}
-                            alt="Me"
-                            className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover"
+                            src={msg.picture}
+                            alt="message"
+                            className="max-w-xs md:max-w-sm rounded-xl border border-gray-200 shadow-sm"
                           />
-                        ) : (
-                          <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <FiUser className="text-gray-500 text-sm" />
+                        )}
+
+                        {/* Nếu có text */}
+                        {msg.message && (
+                          <div
+                            className={`mt-1 max-w-[100%] p-2 md:p-3 rounded-2xl shadow text-sm md:text-base border border-gray-100 ${
+                              isMine
+                                ? "bg-blue-600 text-white rounded-br-none"
+                                : "bg-white text-gray-700 rounded-bl-none"
+                            }`}
+                          >
+                            {msg.message}
                           </div>
                         )}
-                      </>
-                    )}
-                  </div>
-                );
-              })
+                      </div>
+
+                      {/* Avatar của mình */}
+                      {isMine && (
+                        <>
+                          {userProfile?.profile_pic ? (
+                            <img
+                              src={userProfile.profile_pic}
+                              alt="Me"
+                              className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                              <FiUser className="text-gray-500 text-sm" />
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+                <div ref={messagesEndRef} />
+              </>
             )}
           </div>
 

@@ -9,6 +9,13 @@ const conversationSchema = new mongoose.Schema(
         required: true,
       },
     ],
+
+    lastMessage: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Message",
+      default: null,
+    },
+
     isGroup: {
       type: Boolean,
       default: false, // phân biệt chat 1-1 hay nhóm

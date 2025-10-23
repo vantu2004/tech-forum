@@ -79,6 +79,7 @@ export const sendMessage = async (req, res) => {
         error: "You are not a participant of this conversation.",
       });
     }
+
     // upload picture to cloudinary (if any)
     let pictureUrl = null;
     if (picture) {
@@ -95,6 +96,11 @@ export const sendMessage = async (req, res) => {
       senderId: userId,
       message: message?.trim() || null,
       picture: pictureUrl || null,
+    });
+
+    await Conversation.findByIdAndUpdate(conversationId, {
+      lastMessage: newMessage._id,
+      updatedAt: Date.now(),
     });
 
     // Populate sender info

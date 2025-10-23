@@ -21,10 +21,18 @@ export const useConversationStore = create((set) => ({
   createConversation: async (receiverId, message) => {
     try {
       if (!message) return;
-      await axiosInstance.post("/conversations", {
+      const { data } = await axiosInstance.post("/conversations", {
         receiverId,
         message,
       });
+
+      if (data.success && data.conversation) {
+        set((state) => ({
+          conversations: [data.conversation, ...state.conversations],
+        }));
+      }
+
+      return data.conversation;
     } catch (error) {
       console.error("Error creating conversation:", error);
     }

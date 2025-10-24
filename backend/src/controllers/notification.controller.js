@@ -3,9 +3,21 @@ import Notification from "../models/notification.model.js";
 export const getAllNotifications = async (req, res) => {
   try {
     const userId = req.userId;
+
     const notifications = await Notification.find({
       receiverId: userId,
-    }).sort({ createdAt: -1 });
+    })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "senderId",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          select: "name profile_pic headline",
+          options: { lean: true },
+        },
+      })
+      .lean(); // Trả object thuần cho performance
 
     res.status(200).json({ success: true, notifications });
   } catch (error) {
@@ -19,14 +31,22 @@ export const getAllNotifications = async (req, res) => {
 
 export const markAsRead = async (req, res) => {
   try {
-    const userId = req.userId;
     const { notificationId } = req.body;
 
     const notification = await Notification.findByIdAndUpdate(
       notificationId,
       { isRead: true },
       { new: true }
-    );
+    )
+      .populate({
+        path: "senderId",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          select: "name profile_pic headline",
+        },
+      })
+      .lean();
 
     if (!notification) {
       return res.status(404).json({
@@ -52,10 +72,21 @@ export const markAsRead = async (req, res) => {
 export const getUnreadNotifications = async (req, res) => {
   try {
     const userId = req.userId;
+
     const notifications = await Notification.find({
       receiverId: userId,
       isRead: false,
-    }).sort({ createdAt: -1 });
+    })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "senderId",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          select: "name profile_pic headline",
+        },
+      })
+      .lean();
 
     res.status(200).json({ success: true, notifications });
   } catch (error) {

@@ -5,10 +5,19 @@ import { useUserProfileStore } from "../../stores/useUserProfileStore.js";
 import ChatInput from "./ChatInput.jsx";
 import { Link } from "react-router-dom";
 import { useRef } from "react";
+import { useUserAuthStore } from "../../stores/useUserAuthStore.js";
 
 const ChatWindow = ({ activeChat, setActiveChat }) => {
   const { userProfile, fetchUserProfile } = useUserProfileStore();
-  const { messages, isFetchLoading, fetchMessages } = useMessageStore();
+  const {
+    messages,
+    isFetchLoading,
+    fetchMessages,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  } = useMessageStore();
+
+  const { onlineUsers } = useUserAuthStore();
 
   // scroll to bottom khi có tin nhắn mới
   const messagesEndRef = useRef(null);
@@ -17,9 +26,22 @@ const ChatWindow = ({ activeChat, setActiveChat }) => {
     fetchUserProfile();
 
     if (activeChat?._id) {
-      fetchMessages(activeChat._id); // fetch theo conversationId
+      fetchMessages(activeChat._id);
+      subscribeToMessages(activeChat._id); // ✅ truyền conversationId
     }
-  }, [activeChat, fetchMessages, fetchUserProfile]);
+
+    return () => {
+      if (activeChat?._id) {
+        unsubscribeFromMessages(activeChat._id);
+      }
+    };
+  }, [
+    activeChat,
+    fetchUserProfile,
+    fetchMessages,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  ]);
 
   // Tự động scroll khi messages thay đổi
   useEffect(() => {
@@ -52,15 +74,25 @@ const ChatWindow = ({ activeChat, setActiveChat }) => {
                 <FiArrowLeft size={20} />
               </button>
 
-              {/* Avatar bạn bè */}
+              {/* Avatar bạn bè + viền xanh khi online */}
               {friend?.profile?.profile_pic ? (
                 <img
                   src={friend.profile.profile_pic}
                   alt={friend.profile?.name}
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-full ring-2 ring-blue-100 object-cover"
+                  className={`w-10 h-10 md:w-12 md:h-12 rounded-full object-cover ring-2 ${
+                    onlineUsers.includes(friend._id)
+                      ? "ring-green-400"
+                      : "ring-blue-100"
+                  }`}
                 />
               ) : (
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full ring-2 ring-blue-100 flex items-center justify-center bg-gray-100">
+                <div
+                  className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-gray-100 ring-2 ${
+                    onlineUsers.includes(friend._id)
+                      ? "ring-green-400"
+                      : "ring-blue-100"
+                  }`}
+                >
                   <FiUser className="text-gray-500 text-xl" />
                 </div>
               )}
@@ -71,9 +103,18 @@ const ChatWindow = ({ activeChat, setActiveChat }) => {
                     {friend?.profile?.name || "Unknown"}
                   </p>
                 </Link>
-                <p className="text-xs text-gray-500">
-                  {friend?.profile?.headline}
-                </p>
+                <div className="flex items-center gap-1">
+                  <p className="text-xs text-gray-500 truncate max-w-[160px]">
+                    {friend?.profile?.headline}
+                  </p>
+
+                  {/* Chữ “Online” nhỏ, mờ */}
+                  {onlineUsers.includes(friend._id) && (
+                    <span className="text-[11px] text-green-500 font-medium ml-1">
+                      ● Online
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>

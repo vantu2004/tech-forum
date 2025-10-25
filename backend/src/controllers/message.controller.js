@@ -2,6 +2,8 @@ import Message from "../models/message.model.js";
 import Conversation from "../models/conversation.model.js";
 import mongoose from "mongoose";
 import cloudinary from "../lib/cloudinary.js";
+import { io } from "../lib/socket.js";
+import { getReceiverSocketId } from "../lib/socket.js";
 
 export const getAllMessages = async (req, res) => {
   try {
@@ -46,56 +48,46 @@ export const sendMessage = async (req, res) => {
     const userId = req.userId;
     const { conversationId, message, picture } = req.body;
 
-    // Validate: must have conversationId
+    // 1️⃣ Validate input
     if (!conversationId || !mongoose.Types.ObjectId.isValid(conversationId)) {
       return res
         .status(400)
         .json({ success: false, error: "Invalid conversationId." });
     }
-
-    // Validate: message or picture required
     if ((!message || !message.trim()) && !picture) {
-      return res.status(400).json({
-        success: false,
-        error: "Message or picture is required.",
-      });
+      return res
+        .status(400)
+        .json({ success: false, error: "Message or picture is required." });
     }
 
-    // Check conversation exists
+    // 2️⃣ Kiểm tra conversation tồn tại và người gửi có trong participants
     const conversation = await Conversation.findById(conversationId);
-    if (!conversation) {
+    if (!conversation)
       return res
         .status(404)
         .json({ success: false, error: "Conversation not found." });
-    }
 
-    // Check if sender belongs to this conversation
-    // some() dùng để kiểm tra xem có ít nhất một phần tử trong mảng thỏa mãn điều kiện hay không.
-    if (
-      !conversation.participants.some((p) => p.toString() === userId.toString())
-    ) {
-      return res.status(403).json({
-        success: false,
-        error: "You are not a participant of this conversation.",
-      });
-    }
+    if (!conversation.participants.includes(userId))
+      return res
+        .status(403)
+        .json({ success: false, error: "Not your conversation." });
 
-    // upload picture to cloudinary (if any)
+    // 3️⃣ Upload ảnh nếu có
     let pictureUrl = null;
     if (picture) {
-      const uploadResult = await cloudinary.uploader.upload(picture, {
+      const upload = await cloudinary.uploader.upload(picture, {
         folder: "messages",
         resource_type: "image",
       });
-      pictureUrl = uploadResult.secure_url;
+      pictureUrl = upload.secure_url;
     }
 
-    // Create message
+    // 4️⃣ Tạo tin nhắn mới
     let newMessage = await Message.create({
       conversationId,
       senderId: userId,
       message: message?.trim() || null,
-      picture: pictureUrl || null,
+      picture: pictureUrl,
     });
 
     await Conversation.findByIdAndUpdate(conversationId, {
@@ -103,28 +95,48 @@ export const sendMessage = async (req, res) => {
       updatedAt: Date.now(),
     });
 
-    // Populate sender info
+    // 5️⃣ Populate sender
     newMessage = await newMessage.populate({
       path: "senderId",
       select: "email",
-      populate: {
-        path: "profile",
-        select: "name profile_pic",
-      },
+      populate: { path: "profile", select: "name profile_pic" },
     });
 
-    // Update conversation (bump updatedAt + save lastMessage)
-    await Conversation.findByIdAndUpdate(conversationId, {
-      $currentDate: { updatedAt: true },
-    });
+    // 6️⃣ Lấy conversation mới nhất (đã có lastMessage populate)
+    const updatedConversation = await Conversation.findById(conversationId)
+      .populate({
+        path: "participants",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          select: "name profile_pic headline",
+        },
+      })
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "senderId",
+          select: "email profile",
+          populate: {
+            path: "profile",
+            select: "name profile_pic",
+          },
+        },
+      });
 
-    // Response
-    res.status(201).json({
-      success: true,
-      newMessage,
-    });
+    // 7️⃣ Gửi realtime cho A & B
+    for (const participantId of conversation.participants) {
+      const socketId = getReceiverSocketId(participantId.toString());
+      if (socketId) {
+        io.to(socketId).emit("newMessage", newMessage); // cập nhật nội dung chat
+        io.to(socketId).emit("conversationUpdated", updatedConversation); // cập nhật lastMessage ở sidebar
+      }
+    }
+
+    // 8️⃣ Response
+    res.status(201).json({ success: true, newMessage });
   } catch (error) {
-    console.error(error);
+    console.error("Error sending message:", error);
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };

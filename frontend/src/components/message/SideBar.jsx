@@ -2,15 +2,18 @@ import { FiMoreVertical, FiUser, FiMessageCircle } from "react-icons/fi";
 import { useConversationStore } from "../../stores/useConversationStore.js";
 import { useUserAuthStore } from "../../stores/useUserAuthStore.js";
 import { useUserFriendShipStore } from "../../stores/useUserFriendShipStore.js";
+import { useEffect } from "react";
 
 const SideBar = ({ activeChat, setActiveChat }) => {
   const {
     isLoading: isLoadingConversations,
     conversations,
     createConversation,
+    subscribeToConversationUpdates,
+    unsubscribeFromConversationUpdates,
   } = useConversationStore();
   const { isLoading: isLoadingAccepted, accepted } = useUserFriendShipStore();
-  const { userAuth } = useUserAuthStore();
+  const { userAuth, onlineUsers } = useUserAuthStore();
 
   // Lọc ra những friend chưa có conversation
   const conversationIds = new Set(
@@ -26,6 +29,11 @@ const SideBar = ({ activeChat, setActiveChat }) => {
       setActiveChat(conversation); // Mở convo mới tạo
     }
   };
+
+  useEffect(() => {
+    subscribeToConversationUpdates();
+    return () => unsubscribeFromConversationUpdates();
+  }, [subscribeToConversationUpdates, unsubscribeFromConversationUpdates]);
 
   return (
     <aside
@@ -74,17 +82,29 @@ const SideBar = ({ activeChat, setActiveChat }) => {
                 onClick={() => setActiveChat(conversation)}
                 className="flex items-center gap-3 p-3 hover:bg-blue-50 cursor-pointer transition border-b border-gray-100"
               >
-                {friend?.profile?.profile_pic ? (
-                  <img
-                    src={friend.profile.profile_pic}
-                    alt={friend.profile?.name}
-                    className="w-12 h-12 rounded-full ring-2 ring-gray-100 object-cover"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full ring-2 ring-gray-100 bg-gray-200 flex items-center justify-center">
-                    <FiUser className="text-gray-500 text-xl" />
-                  </div>
-                )}
+                <div className="relative">
+                  {friend?.profile?.profile_pic ? (
+                    <img
+                      src={friend.profile.profile_pic}
+                      alt={friend.profile?.name}
+                      className="w-12 h-12 rounded-full ring-2 ring-gray-100 object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full ring-2 ring-gray-100 bg-gray-200 flex items-center justify-center">
+                      <FiUser className="text-gray-500 text-xl" />
+                    </div>
+                  )}
+
+                  {/* Chấm online/offline */}
+                  <span
+                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+                      onlineUsers.includes(friend?._id)
+                        ? "bg-green-500"
+                        : "bg-gray-400"
+                    }`}
+                  ></span>
+                </div>
+
                 <div className="flex-1">
                   <p className="font-medium text-gray-800">
                     {friend?.profile?.name || "Unknown"}

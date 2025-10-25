@@ -31,7 +31,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 // nếu chưa login hoặc verify tài khoản thì redirect to login page hoặc verify email page ko thì trả về children
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, userAuth } = useUserAuthStore();
+  const { isAuthenticated, userAuth, onlineUsers } = useUserAuthStore();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

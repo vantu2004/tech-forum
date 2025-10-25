@@ -1,12 +1,19 @@
 import { create } from "zustand";
 import axiosInstance from "../lib/axios";
+import { io } from "socket.io-client";
 
-export const useUserAuthStore = create((set) => ({
+const BASE_URL = "http://localhost:5000";
+
+export const useUserAuthStore = create((set, get) => ({
   userAuth: null,
   isAuthenticated: false,
   isLoading: false,
   isCheckingAuth: true,
   message: null,
+
+  socket: null,
+
+  onlineUsers: [],
 
   // dùng cho useGoogleAuth hook
   setIsLoading: (isLoading) => set({ isLoading }),
@@ -22,6 +29,8 @@ export const useUserAuthStore = create((set) => ({
         userAuth: data.userAuth,
         isAuthenticated: true,
       });
+
+      get().connectSocket();
     } catch (error) {
       console.log(error);
       set({
@@ -44,6 +53,8 @@ export const useUserAuthStore = create((set) => ({
         userAuth: data.userAuth,
         isAuthenticated: true,
       });
+
+      get().connectSocket();
     } catch (error) {
       console.log(error);
       set({
@@ -148,10 +159,36 @@ export const useUserAuthStore = create((set) => ({
         userAuth: null,
         isAuthenticated: false,
       });
+
+      get().disconnectSocket();
     } catch (error) {
       throw new Error(error.response?.data?.error || "Error logging out user");
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  connectSocket: () => {
+    if (!get().userAuth || get().socket?.connected) {
+      return;
+    }
+    const socketInstance = io(BASE_URL, {
+      query: {
+        userId: get().userAuth._id,
+      },
+    });
+    socketInstance.connect();
+
+    set({ socket: socketInstance });
+
+    socketInstance.on("getOnlineUsers", (userIds) => {
+      set({ onlineUsers: userIds });
+    });
+  },
+
+  disconnectSocket: () => {
+    if (get().socket?.connected) {
+      get().socket.disconnect();
     }
   },
 }));

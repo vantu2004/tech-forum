@@ -91,4 +91,19 @@ export const usePostStore = create((set) => ({
       set({ isLoading: false });
     }
   },
+
+  searchPosts: async (query) => {
+    set({ isLoading: true });
+    try {
+      const { data } = await axiosInstance.get(
+        `/posts/search?q=${encodeURIComponent(query)}`
+      );
+      set({ posts: data.posts, hasMore: false }); // reset infinite scroll
+    } catch (error) {
+      console.error(error);
+      set({ posts: [] });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 }));

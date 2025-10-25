@@ -2,15 +2,23 @@ import { useEffect, useRef, useCallback } from "react";
 import { usePostStore } from "../../../stores/usePostStore";
 import PostBox from "./PostBox";
 import PostItem from "./PostItem";
+import { useSearchParams } from "react-router-dom";
 
 const FeedContent = ({ onOpenPostModal, onOpenImageViewer }) => {
-  const { fetchPosts, posts, isLoading, hasMore, page } = usePostStore();
+  const { fetchPosts, searchPosts, posts, isLoading, hasMore, page } =
+    usePostStore();
   const observer = useRef();
 
-  // lần đầu load
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("search");
+
   useEffect(() => {
-    fetchPosts(1, 5, false);
-  }, [fetchPosts]);
+    if (query) {
+      searchPosts(query);
+    } else {
+      fetchPosts(1, 5, false);
+    }
+  }, [query, fetchPosts, searchPosts]);
 
   // callback khi observer chạm cuối danh sách
   const lastPostRef = useCallback(
@@ -33,14 +41,18 @@ const FeedContent = ({ onOpenPostModal, onOpenImageViewer }) => {
     <div className="space-y-4">
       <PostBox onOpenPostModal={onOpenPostModal} />
 
-      {posts.map((post, index) => {
-        const isLast = index === posts.length - 1;
-        return (
-          <div key={post._id} ref={isLast ? lastPostRef : null}>
-            <PostItem post={post} onOpenImageViewer={onOpenImageViewer} />
-          </div>
-        );
-      })}
+      {posts.length === 0 ? (
+        <div className="text-center text-gray-500 mt-10">No posts found.</div>
+      ) : (
+        posts.map((post, index) => {
+          const isLast = index === posts.length - 1;
+          return (
+            <div key={post._id} ref={isLast ? lastPostRef : null}>
+              <PostItem post={post} onOpenImageViewer={onOpenImageViewer} />
+            </div>
+          );
+        })
+      )}
 
       {isLoading && (
         <div className="flex justify-center items-center py-6">

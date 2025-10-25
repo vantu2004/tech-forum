@@ -5,14 +5,24 @@ import { FaCircleUser } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/navbar/logo.png";
 import { useUserProfileStore } from "../../stores/useUserProfileStore";
+import { useNavigate } from "react-router-dom";
 
 const Navbar_v2 = () => {
   const [open, setOpen] = useState(false);
   const { userProfile, fetchUserProfile } = useUserProfileStore();
 
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetchUserProfile();
   }, [fetchUserProfile]);
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter" && search.trim()) {
+      navigate(`/feed?search=${encodeURIComponent(search.trim())}`);
+    }
+  };
 
   // Links cố định
   const baseLinks = [
@@ -71,10 +81,24 @@ const Navbar_v2 = () => {
             <FiSearch className="text-gray-500 mr-2 text-lg" />
             <input
               type="text"
-              placeholder="Search"
+              placeholder="Search posts or users"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleSearch}
               className="bg-transparent text-gray-800 text-base focus:outline-none w-full"
             />
           </div>
+          {/* <div className="hidden sm:flex items-center border ...">
+            <FiSearch className="text-gray-500 mr-2 text-lg" />
+            <input
+              type="text"
+              placeholder="Search posts or users"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleSearch}
+              className="bg-transparent text-gray-800 text-base focus:outline-none w-full"
+            />
+          </div> */}
         </div>
 
         {/* Desktop Links */}

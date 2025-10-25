@@ -221,3 +221,39 @@ export const getPostsByUserId = async (req, res) => {
     });
   }
 };
+
+export const searchPosts = async (req, res) => {
+  try {
+    const query = req.query.q?.trim();
+    if (!query) {
+      return res.status(400).json({ success: false, error: "Missing query" });
+    }
+
+    // regex tìm kiếm không phân biệt hoa thường
+    const regex = new RegExp(query, "i");
+
+    const posts = await Post.find()
+      .populate({
+        path: "userId",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          select: "name headline profile_pic",
+        },
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // lọc thủ công theo desc hoặc tên người
+    const filtered = posts.filter(
+      (p) =>
+        (p.desc && regex.test(p.desc)) ||
+        (p.userId?.profile?.name && regex.test(p.userId.profile.name))
+    );
+
+    res.status(200).json({ success: true, posts: filtered });
+  } catch (error) {
+    console.error("❌ Error searching posts:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};

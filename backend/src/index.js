@@ -10,10 +10,15 @@ import commentRoutes from "./routes/comment.route.js";
 import userFriendshipRoutes from "./routes/userFriendship.route.js";
 import conversationRoutes from "./routes/conversation.route.js";
 import messageRoutes from "./routes/message.route.js";
+import adminRoutes from "./routes/admin.route.js";
 import cors from "cors";
 import userSkillRoutes from "./routes/userSkill.route.js";
 import userExperienceRoutes from "./routes/userExperience.route.js";
 import { app, server } from "./lib/socket.js";
+
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./lib/swagger.js";
+
 
 dotenv.config();
 
@@ -24,10 +29,14 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: true,
     credentials: true,
   })
 );
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+
 
 app.use("/api/users", userAuthRoutes);
 app.use("/api/users/profile", userProfileRoutes);
@@ -39,9 +48,12 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/admin", adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Swagger docs available at: http://localhost:${PORT}/api-docs`);
+
   connectDB();
 });

@@ -8,6 +8,13 @@ const userAuthSchema = new mongoose.Schema(
     isVerified: { type: Boolean, default: false },
     lastLogin: { type: Date, default: Date.now },
 
+    // role
+    role: {
+      type: String,
+      enum: ["user", "admin"], 
+      default: "user",
+    },
+
     // token
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpiresAt: { type: Date, default: null },

@@ -23,7 +23,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/friendships/pending-sent:
+ * /api/users/friends/pending-sent:
  *   get:
  *     summary: Lấy danh sách friend requests mà user đã gửi
  *     tags: [Friendships]
@@ -42,7 +42,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/friendships/pending-received:
+ * /api/users/friends/pending-received:
  *   get:
  *     summary: Lấy danh sách friend requests mà user nhận
  *     tags: [Friendships]
@@ -61,7 +61,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/friendships/accepted:
+ * /api/users/friends/accepted:
  *   get:
  *     summary: Lấy danh sách bạn bè đã chấp nhận
  *     tags: [Friendships]
@@ -74,7 +74,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/friendships/related:
+ * /api/users/friends/related:
  *   get:
  *     summary: Lấy danh sách gợi ý kết bạn (People You May Know)
  *     tags: [Friendships]
@@ -87,7 +87,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/friendships/add:
+ * /api/users/friends/add:
  *   post:
  *     summary: Gửi friend request
  *     tags: [Friendships]
@@ -114,7 +114,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/friendships/accept:
+ * /api/users/friends/accept:
  *   post:
  *     summary: Chấp nhận friend request
  *     tags: [Friendships]
@@ -138,7 +138,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/friendships/cancel:
+ * /api/users/friends/cancel:
  *   delete:
  *     summary: Hủy friend request đã gửi
  *     tags: [Friendships]
@@ -162,7 +162,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/friendships/decline:
+ * /api/users/friends/decline:
  *   delete:
  *     summary: Từ chối friend request nhận được
  *     tags: [Friendships]
@@ -186,7 +186,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/friendships/remove:
+ * /api/users/friends/remove:
  *   delete:
  *     summary: Xóa bạn bè
  *     tags: [Friendships]

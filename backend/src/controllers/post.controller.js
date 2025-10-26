@@ -17,6 +17,7 @@ export const addPost = async (req, res) => {
     let imageUrls = [];
 
     if (images && images.length > 0) {
+
       // Upload từng ảnh lên Cloudinary
       const uploadPromises = images.map((img) =>
         cloudinary.uploader.upload(img, {

@@ -173,7 +173,7 @@ export const getPeopleYouMayKnow = async (req, res) => {
       .populate({
         path: "profile",
         model: "UserProfile",
-        select: "name profile_pic headline curr_company",
+        select: "name profile_pic headline curr_company cover_pic",
       })
       .limit(10);
 

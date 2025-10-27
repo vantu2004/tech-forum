@@ -1,5 +1,25 @@
 import Post from "../models/post.model.js";
 import cloudinary from "../lib/cloudinary.js";
+import UserFriendship from "../models/userFriendship.model.js";
+
+export const getAcceptedFriendsIds = async (userId) => {
+  console.log("Getting accepted friends for userId:", userId);
+  const friendships = await UserFriendship.find({
+    $or: [
+      { requester: userId, status: "ACCEPTED" },
+      { receiver: userId, status: "ACCEPTED" },
+    ],
+  });
+
+  console.log("Friendships:", friendships);
+
+  // Lấy id của người bạn còn lại
+  const friendsIds = friendships.map((fs) =>
+    String(fs.requester._id) === String(userId) ? fs.receiver : fs.requester
+  );
+
+  return friendsIds;
+};
 
 export const addPost = async (req, res) => {
   try {
@@ -116,6 +136,45 @@ export const getAllPosts = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const posts = await Post.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "userId",
+        select: "email profile",
+        populate: {
+          path: "profile",
+          select: "name headline profile_pic",
+        },
+      })
+      .populate("likes", "email");
+
+    const total = await Post.countDocuments();
+
+    res.status(200).json({
+      success: true,
+      posts,
+      total,
+      hasMore: page * limit < total, // còn bài chưa tải
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+export const getFriendsPosts = async (req, res) => {
+  try {
+    console.log("Fetching friends' posts for userId:", req.userId);
+    const friendsIds = await getAcceptedFriendsIds(req.userId);
+
+    console.log("Friends IDs:", friendsIds);
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5; // 5 post mỗi lần
+    const skip = (page - 1) * limit;
+
+    const posts = await Post.find({ userId: { $in: friendsIds } })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)

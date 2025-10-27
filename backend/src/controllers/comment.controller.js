@@ -170,7 +170,7 @@ export const createComment = async (req, res) => {
     if (hasImage) {
       try {
         const imageObj = await uploadBase64ImageToCloudinary(image, "comments");
-        imageUrl = imageObj?.url || null; // ✅ an toàn
+        imageUrl = imageObj?.url || null; // an toàn
       } catch (e) {
         const status = e.status || 500;
         return res
@@ -184,7 +184,7 @@ export const createComment = async (req, res) => {
       postId,
       userId,
       text: hasText ? text.trim() : "",
-      image: imageUrl, // ✅ giờ chỉ truyền string/null
+      image: imageUrl, // giờ chỉ truyền string/null
       parentId: parentId || null,
     });
 

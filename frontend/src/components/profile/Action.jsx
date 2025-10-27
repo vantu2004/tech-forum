@@ -10,10 +10,10 @@ const Action = ({ onOpenMessageModal }) => {
       </button>
 
       {/* Share Profile */}
-      <button className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 border rounded-full text-gray-700 hover:bg-gray-50 shadow-sm transition">
+      {/* <button className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 border rounded-full text-gray-700 hover:bg-gray-50 shadow-sm transition">
         <FiShare2 />
         <span>Share</span>
-      </button>
+      </button> */}
 
       {/* Message */}
       <button

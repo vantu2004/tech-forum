@@ -115,12 +115,12 @@ const PostItem = ({ post, onOpenImageViewer }) => {
           <FiMessageCircle /> <span>{post.comments}</span>
         </button>
 
-        <button
+        {/* <button
           type="button"
           className="flex items-center gap-1 hover:text-blue-600 text-gray-600"
         >
           <FiShare2 /> <span>12</span>
-        </button>
+        </button> */}
       </div>
 
       <CommentInput post={post} userProfile={userProfile} />

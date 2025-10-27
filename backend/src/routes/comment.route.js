@@ -128,4 +128,9 @@ const router = express.Router();
  *         description: Comment không tồn tại
  */
 
+router.post("/", verifyToken, createComment);
+router.get("/pagination/:postId", getCommentsPaginated);
+router.get("/:postId", getAllComments);
+router.put("/like-dislike", verifyToken, likeDislikeComment);
+
 export default router;

@@ -1,4 +1,4 @@
-import express from "express"; 
+import express from "express";
 import upload from "../lib/multer.js";
 import {
   getUserProfile,

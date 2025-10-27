@@ -3,7 +3,6 @@ import cloudinary from "../lib/cloudinary.js";
 import UserFriendship from "../models/userFriendship.model.js";
 
 export const getAcceptedFriendsIds = async (userId) => {
-
   console.log("Getting accepted friends for userId:", userId);
   const friendships = await UserFriendship.find({
     $or: [
@@ -15,13 +14,12 @@ export const getAcceptedFriendsIds = async (userId) => {
   console.log("Friendships:", friendships);
 
   // Lấy id của người bạn còn lại
-  const friendsIds = friendships.map(fs =>
+  const friendsIds = friendships.map((fs) =>
     String(fs.requester._id) === String(userId) ? fs.receiver : fs.requester
   );
 
   return friendsIds;
 };
-
 
 export const addPost = async (req, res) => {
   try {
@@ -39,7 +37,6 @@ export const addPost = async (req, res) => {
     let imageUrls = [];
 
     if (images && images.length > 0) {
-
       // Upload từng ảnh lên Cloudinary
       const uploadPromises = images.map((img) =>
         cloudinary.uploader.upload(img, {
@@ -178,7 +175,7 @@ export const getFriendsPosts = async (req, res) => {
     const limit = parseInt(req.query.limit) || 5; // 5 post mỗi lần
     const skip = (page - 1) * limit;
 
-    const posts = await Post.find({userId: { $in: friendsIds }})
+    const posts = await Post.find({ userId: { $in: friendsIds } })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -205,7 +202,6 @@ export const getFriendsPosts = async (req, res) => {
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
-
 
 export const getPostById = async (req, res) => {
   try {

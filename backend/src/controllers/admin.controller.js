@@ -1,5 +1,6 @@
 import UserAuth from "../models/userAuth.model.js";
 import UserProfile from "../models/userProfile.model.js";
+import Comment from "../models/comment.model.js";
 import bcryptjs from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js";
 
@@ -208,3 +209,23 @@ export const deleteUser = async (req, res) => {
       .json({ success: false, error: "Failed to delete user" });
   }
 };
+
+export const getAllComments = async (req, res) => {
+  try {
+    const comments = await Comment.find()
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "userId",
+        select: "email profile",
+        populate: { path: "profile", select: "name headline profile_pic" },
+      })
+      .lean();
+
+    res.status(200).json({ success: true, comments });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+

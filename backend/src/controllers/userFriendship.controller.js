@@ -4,6 +4,7 @@ import UserFriendship from "../models/userFriendship.model.js";
 import UserProfile from "../models/userProfile.model.js";
 import mongoose from "mongoose";
 
+
 export const getPendingSentFriendships = async (req, res) => {
   try {
     const userId = String(req.userId);

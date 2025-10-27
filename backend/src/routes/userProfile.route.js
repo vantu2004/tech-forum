@@ -23,7 +23,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/profile:
+ * /api/users/profile:
  *   get:
  *     summary: Lấy profile của chính user
  *     tags: [UserProfile]
@@ -36,7 +36,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/profile/{userId}:
+ * /api/users/profile/{userId}:
  *   get:
  *     summary: Lấy profile của user theo userId
  *     tags: [UserProfile]
@@ -54,7 +54,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/profile:
+ * /api/users/profile:
  *   put:
  *     summary: Cập nhật profile
  *     tags: [UserProfile]
@@ -74,7 +74,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/profile/search:
+ * /api/users/profile/search:
  *   get:
  *     summary: Tìm kiếm profile theo name hoặc email
  *     tags: [UserProfile]
@@ -94,7 +94,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/profile/resume:
+ * /api/users/profile/resume:
  *   post:
  *     summary: Upload CV mới
  *     tags: [UserProfile]
@@ -158,7 +158,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/profile/resume/default:
+ * /api/users/profile/resume/default:
  *   put:
  *     summary: Đặt CV mặc định
  *     tags: [UserProfile]
@@ -188,4 +188,3 @@ router.put("/resume", verifyToken, upload.single("resumeFile"), replaceUserCV);
 router.put("/resume/default", verifyToken, setCVAsDefault);
 
 export default router;
-  

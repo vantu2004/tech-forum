@@ -20,7 +20,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/experiences:
+ * /api/users/experiences:
  *   get:
  *     summary: Lấy tất cả kinh nghiệm của người dùng hiện tại
  *     tags: [UserExperiences]
@@ -64,7 +64,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/experiences/user/{userId}:
+ * /api/users/experiences/user/{userId}:
  *   get:
  *     summary: Lấy kinh nghiệm theo userId
  *     tags: [UserExperiences]
@@ -81,7 +81,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/experiences/{experienceId}:
+ * /api/users/experiences/{experienceId}:
  *   get:
  *     summary: Lấy chi tiết một kinh nghiệm
  *     tags: [UserExperiences]
@@ -149,7 +149,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/experiences:
+ * /api/users/experiences:
  *   post:
  *     summary: Tạo kinh nghiệm mới
  *     tags: [UserExperiences]

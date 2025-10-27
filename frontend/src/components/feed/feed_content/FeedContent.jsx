@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { usePostStore } from "../../../stores/usePostStore";
+import { useUserFriendShipStore } from "../../../stores/useUserFriendShipStore";
 import PostBox from "./PostBox";
 import PostItem from "./PostItem";
 import { useSearchParams } from "react-router-dom";
@@ -7,16 +8,25 @@ import { useSearchParams } from "react-router-dom";
 const FeedContent = ({ onOpenPostModal, onOpenImageViewer }) => {
   const { fetchPosts, searchPosts, posts, isLoading, hasMore, page } =
     usePostStore();
+  const { accepted, fetchAcceptedFriends } = useUserFriendShipStore();
+
   const observer = useRef();
 
   const [searchParams] = useSearchParams();
   const query = searchParams.get("search");
 
   useEffect(() => {
+    if (!accepted || accepted.length === 0) {
+      fetchAcceptedFriends();
+    }
+  }, [accepted, fetchAcceptedFriends]);
+
+
+  useEffect(() => {
     if (query) {
       searchPosts(query);
     } else {
-      fetchPosts(1, 5, false);
+      fetchPosts(1, 100, false);
     }
   }, [query, fetchPosts, searchPosts]);
 

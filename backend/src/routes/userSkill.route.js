@@ -17,7 +17,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/skills:
+ * /api/users/skills:
  *   get:
  *     summary: Lấy danh sách skills của chính user
  *     tags: [UserSkill]
@@ -30,7 +30,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/skills/{userId}:
+ * /api/users/skills/{userId}:
  *   get:
  *     summary: Lấy danh sách skills của user theo userId
  *     tags: [UserSkill]
@@ -50,7 +50,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/skills:
+ * /api/users/skills:
  *   put:
  *     summary: Cập nhật danh sách skills của chính user
  *     tags: [UserSkill]
@@ -81,4 +81,3 @@ router.get("/:userId", verifyToken, getSkillsByUserId);
 router.put("/", verifyToken, updateSkills);
 
 export default router;
-  
